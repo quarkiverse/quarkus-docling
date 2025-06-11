@@ -15,6 +15,7 @@
   <modules>
     <module>deployment</module>
     <module>runtime</module>
+    <module>testing-internal</module>
   </modules>
 
   <scm>
@@ -36,6 +37,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>3.20.0</quarkus.version>
+    <quarkus-wiremock.version>1.5.0</quarkus-wiremock.version>
   </properties>
 
   <developers>
