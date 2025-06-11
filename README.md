@@ -6,15 +6,15 @@
 
 # Quarkus Docling
 
-This is a Quarkus extension for the [Docling project](https://github.com/docling-project/docling). Docling simplifies document processing, parsing diverse formats — including advanced PDF understanding — and providing seamless integrations with the gen AI ecosystem.
+This is a Quarkus extension for the [Docling project](https://github.com/docling-project). Docling simplifies document processing, parsing diverse formats — including advanced PDF understanding — and providing seamless integrations with the gen AI ecosystem.
 
 <p align="center">
-  <a href="https://github.com/docling-project/docling">
-    <img loading="lazy" alt="Docling" src="https://github.com/docling-project/docling/raw/main/docs/assets/docling_processing.png" width="100%"/>
+  <a href="https://github.com/docling-project/docling-serve">
+    <img loading="lazy" alt="Docling" src="https://github.com/docling-project/docling-serve/raw/main/docs/assets/docling-serve-pic.png" width="30%"/>
   </a>
 </p>
 
-## Features
+## Docling Features
 
 * 🗂️ Parsing of [multiple document formats][supported_formats] incl. PDF, DOCX, XLSX, HTML, images, and more
 * 📑 Advanced PDF understanding incl. page layout, reading order, table structure, code, formulas, image classification, and more
@@ -25,6 +25,10 @@ This is a Quarkus extension for the [Docling project](https://github.com/docling
 * 🔍 Extensive OCR support for scanned PDFs and images
 * 🥚 Support of several Visual Language Models ([SmolDocling](https://huggingface.co/ds4sd/SmolDocling-256M-preview))
 * 💻 Simple and convenient CLI
+
+## Quarkus Docling Features
+
+Currently, this extension is a set of wrappers around the [Docling Serve](https://github.com/docling-project/docling-serve) project, which exposes Docling as a REST API. It also provides a Dev Service and Dev UI integrations.
 
 ## Contributors ✨
 
