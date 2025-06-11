@@ -10,6 +10,11 @@ permissions:
   pull-requests: write
 
 jobs:
+  print:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "github.actor = ${{ github.actor }}"
+
   automerge:
     runs-on: ubuntu-latest
     if: (github.actor == 'dependabot[bot]') || (github.actor == 'allcontributors[bot}')
