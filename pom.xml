@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>io.quarkiverse</groupId>
+    <artifactId>quarkiverse-parent</artifactId>
+    <version>20</version>
+  </parent>
+  <groupId>io.quarkiverse.docling</groupId>
+  <artifactId>quarkus-docling-parent</artifactId>
+  <version>999-SNAPSHOT</version>
+  <packaging>pom</packaging>
+  <name>Quarkus Docling - Parent</name>
+
+  <modules>
+    <module>deployment</module>
+    <module>runtime</module>
+  </modules>
+
+  <scm>
+    <connection>scm:git:git@github.com:quarkiverse/quarkus-docling.git</connection>
+    <developerConnection>scm:git:git@github.com:quarkiverse/quarkus-docling.git</developerConnection>
+    <url>https://github.com/quarkiverse/quarkus-docling</url>
+  </scm>
+
+  <issueManagement>
+    <system>GitHub</system>
+    <url>https://github.com/quarkiverse/quarkus-docling/issues/</url>
+  </issueManagement>
+
+  <properties>
+    <assertj.version>3.27.3</assertj.version>
+    <compiler-plugin.version>3.14.0</compiler-plugin.version>
+    <maven.compiler.release>17</maven.compiler.release>
+    <openapi.generator.version>2.10.0</openapi.generator.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <quarkus.version>3.20.0</quarkus.version>
+  </properties>
+
+  <developers>
+    <developer>
+      <name>Eric Deandrea</name>
+      <email>eric@ericdeandrea.dev</email>
+      <organization>Red Hat</organization>
+      <organizationUrl>https://www.redhat.com</organizationUrl>
+    </developer>
+    <developer>
+      <name>Alex Soto</name>
+      <email>asotobu@gmail.com</email>
+      <organization>Red Hat</organization>
+      <organizationUrl>https://www.redhat.com</organizationUrl>
+      <url>https://lordofthejars.com</url>
+    </developer>
+  </developers>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>io.quarkus</groupId>
+        <artifactId>quarkus-bom</artifactId>
+        <version>${quarkus.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.assertj</groupId>
+        <artifactId>assertj-core</artifactId>
+        <version>${assertj.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkiverse.openapi.generator</groupId>
+        <artifactId>quarkus-openapi-generator</artifactId>
+        <version>${openapi.generator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.quarkiverse.openapi.generator</groupId>
+        <artifactId>quarkus-openapi-generator-deployment</artifactId>
+        <version>${openapi.generator.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>io.quarkus</groupId>
+          <artifactId>quarkus-maven-plugin</artifactId>
+          <version>${quarkus.version}</version>
+        </plugin>
+        <plugin>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>${compiler-plugin.version}</version>
+          <configuration>
+            <parameters>true</parameters>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
+
+  <profiles>
+    <profile>
+      <id>docs</id>
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>!true</value>
+        </property>
+      </activation>
+      <modules>
+        <module>docs</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>it</id>
+      <activation>
+        <property>
+          <name>performRelease</name>
+          <value>!true</value>
+        </property>
+      </activation>
+      <modules>
+        <module>integration-tests</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>generate-client-stubs</id>
+      <activation>
+        <property>
+          <name>generate-client-stubs</name>
+        </property>
+      </activation>
+    </profile>
+  </profiles>
+</project>

@@ -1,0 +1,14 @@
+name: Quarkus Docling
+artifact: ${project.groupId}:${project.artifactId}:${project.version}
+description: Runs Docling as an API service. Docling simplifies document processing, parsing diverse formats — including advanced PDF understanding — and providing seamless integrations with the gen AI ecosystem.
+metadata:
+  keywords:
+    - ai
+    -
+    - docling
+  guide: "https://docs.quarkiverse.io/quarkus-docling/dev/index.html"
+  categories:
+    - "ai"
+  scm:
+    url: "https://github.com/docling-project/docling-serve"
+  status: experimental

@@ -1,0 +1,5 @@
+name: quarkus-docling
+title: Docling
+version: dev
+nav:
+  - modules/ROOT/nav.adoc
