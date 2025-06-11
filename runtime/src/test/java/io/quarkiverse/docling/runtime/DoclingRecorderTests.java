@@ -5,8 +5,9 @@ import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.Test;
 
-import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.quarkus.runtime.RuntimeValue;
+
+import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 
 class DoclingRecorderTests {
     DoclingRuntimeConfig config = mock(DoclingRuntimeConfig.class);
@@ -16,6 +17,6 @@ class DoclingRecorderTests {
     void noBaseUrlSet() {
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> recorder.doclingClient().get())
-                .withFailMessage("quarkus.langchain4j.docling.base-url cannot be null or empty");
+                .withFailMessage("quarkus.docling.base-url cannot be null or empty");
     }
 }
