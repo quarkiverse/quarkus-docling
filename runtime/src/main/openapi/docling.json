@@ -3191,6 +3191,7 @@
             "type": "object",
             "title": "Generation Config",
             "description": "Config from https://huggingface.co/docs/transformers/en/main_classes/text_generation#transformers.GenerationConfig",
+            "additionalProperties": true,
             "default": {
               "max_new_tokens": 200,
               "do_sample": false

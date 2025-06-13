@@ -5,9 +5,8 @@ import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.runtime.RuntimeValue;
-
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
+import io.quarkus.runtime.RuntimeValue;
 
 class DoclingRecorderTests {
     DoclingRuntimeConfig config = mock(DoclingRuntimeConfig.class);

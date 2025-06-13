@@ -28,11 +28,11 @@ class DoclingApiLogRequestsTests extends RequestResponseLoggingTests {
             .overrideRuntimeConfigKey("quarkus.docling.log-requests", "true");
 
     @Inject
-    DoclingApi DoclingApi;
+    DoclingApi doclingApi;
 
     @Test
     void requestLogged() {
-        assertThat(DoclingApi.healthHealthGet())
+        assertThat(doclingApi.healthHealthGet())
                 .isNotNull()
                 .extracting(HealthCheckResponse::getStatus)
                 .isEqualTo("ok");

@@ -8,9 +8,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.jboss.resteasy.reactive.client.api.LoggingScope;
 
+import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
+
 import io.quarkiverse.docling.runtime.client.api.DoclingApi;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
-import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
 
 public final class DoclingClientBuilder {
     private String baseUrl;
@@ -46,9 +47,9 @@ public final class DoclingClientBuilder {
     }
 
     public DoclingApi build() {
-        //        if ((baseUrl == null) || baseUrl.trim().isBlank()) {
-        //            throw new IllegalArgumentException(DoclingRuntimeConfig.BASE_URL_KEY + " cannot be null or empty");
-        //        }
+        if ((baseUrl == null) || baseUrl.trim().isBlank()) {
+            throw new IllegalArgumentException(DoclingRuntimeConfig.BASE_URL_KEY + " cannot be null or empty");
+        }
 
         var defaultTimeout = Optional.ofNullable(this.timeout).orElse(Duration.ofMinutes(1));
 

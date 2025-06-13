@@ -28,7 +28,7 @@ class DoclingApiAvailableTests extends RequestResponseLoggingTests {
             .overrideRuntimeConfigKey(DoclingRuntimeConfig.BASE_URL_KEY, wiremockUrlForConfig());
 
     @Inject
-    DoclingApi DoclingApi;
+    DoclingApi doclingApi;
 
     @Test
     void helloNoLogging() {
@@ -41,7 +41,7 @@ class DoclingApiAvailableTests extends RequestResponseLoggingTests {
                                 }
                                 """)));
 
-        assertThat(DoclingApi.healthHealthGet())
+        assertThat(doclingApi.healthHealthGet())
                 .isNotNull()
                 .extracting(HealthCheckResponse::getStatus)
                 .isEqualTo("ok");
