@@ -12,11 +12,30 @@
     <name>Quarkus Docling - Documentation</name>
 
     <dependencies>
+        <dependency>
+            <groupId>io.quarkiverse.docling</groupId>
+            <artifactId>quarkus-docling</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.quarkiverse.antora</groupId>
+            <artifactId>quarkus-antora</artifactId>
+            <version>${quarkus-antora.version}</version>
+        </dependency>
+
         <!-- Make sure the doc is built after the other artifacts -->
         <dependency>
             <groupId>io.quarkiverse.docling</groupId>
             <artifactId>quarkus-docling-deployment</artifactId>
             <version>${project.version}</version>
+            <type>pom</type>
+            <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 
