@@ -2,26 +2,23 @@
 
 include::./includes/attributes.adoc[]
 
-TIP: Describe what the extension does here.
+This is a Quarkus extension for the https://github.com/docling-project[Docling project]. Docling simplifies document processing, parsing diverse formats — including advanced PDF understanding — and providing seamless integrations with the gen AI ecosystem.
 
-== Installation
+[link=https://github.com/docling-project/docling-serve]
+image::https://github.com/docling-project/docling-serve/raw/main/docs/assets/docling-serve-pic.png[Docling Serve,width=300]
 
-If you want to use this extension, you need to add the `io.quarkiverse.docling:quarkus-docling` extension first to your build file.
+Currently, this extension is a set of wrappers around the https://github.com/docling-project/docling-serve[Docling Serve] project, which exposes Docling as a REST API. It also provides a Dev Service and Dev UI integrations.
 
-For instance, with Maven, add the following dependency to your POM file:
+The eventual goal is to unify the https://docling-project.github.io/docling/concepts/docling_document[DoclingDocument] format with https://docs.langchain4j.dev/tutorials/rag#document[LangChain4j's `Document` abstraction] so that Docling can be used in a LangChain4j RAG pipeline for ingesting data.
 
-[source,xml,subs=attributes+]
-----
-<dependency>
-    <groupId>io.quarkiverse.docling</groupId>
-    <artifactId>quarkus-docling</artifactId>
-    <version>{project-version}</version>
-</dependency>
-----
+== Docling Features
 
-[[extension-configuration-reference]]
-== Extension Configuration Reference
-
-TIP: Remove this section if you don't have Quarkus configuration properties in your extension.
-
-include::includes/quarkus-docling.adoc[leveloffset=+1, opts=optional]
+* 🗂️ Parsing of https://docling-project.github.io/docling/usage/supported_formats/[multiple document formats] incl. PDF, DOCX, XLSX, HTML, images, and more
+* 📑 Advanced PDF understanding incl. page layout, reading order, table structure, code, formulas, image classification, and more
+* 🧬 Unified, expressive https://docling-project.github.io/docling/concepts/docling_document/[`DoclingDocument`] representation format
+* ↪️ Various https://docling-project.github.io/docling/usage/supported_formats/[export formats] and options, including Markdown, HTML, and lossless JSON
+* 🔒 Local execution capabilities for sensitive data and air-gapped environments
+* 🤖 Plug-and-play https://docling-project.github.io/docling/integrations/[integrations] incl. LangChain, LlamaIndex, Crew AI & Haystack for agentic AI
+* 🔍 Extensive OCR support for scanned PDFs and images
+* 🥚 Support of several Visual Language Models https://huggingface.co/ds4sd/SmolDocling-256M-preview[SmolDocling]
+* 💻 Simple and convenient CLI

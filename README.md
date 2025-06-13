@@ -30,7 +30,9 @@ This is a Quarkus extension for the [Docling project](https://github.com/docling
 
 Currently, this extension is a set of wrappers around the [Docling Serve](https://github.com/docling-project/docling-serve) project, which exposes Docling as a REST API. It also provides a Dev Service and Dev UI integrations.
 
-The eventual goal is to unify the [DoclingDocument][docling document] format with [LangChain4j's `Document` abstraction](https://docs.langchain4j.dev/tutorials/rag#document) so that Docling can be used in a LangChain4j RAG pipeline for ingesting data.
+The eventual goal is to unify the [DoclingDocument][docling_document] format with [LangChain4j's `Document` abstraction](https://docs.langchain4j.dev/tutorials/rag#document) so that Docling can be used in a LangChain4j RAG pipeline for ingesting data.
+
+Take a look at [the documentation](https://docs.quarkiverse.io/quarkus-docling/dev) for more information.
 
 ## Contributors ✨
 

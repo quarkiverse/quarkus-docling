@@ -1,0 +1,5 @@
+= All Configuration Options
+
+include::./includes/attributes.adoc[]
+
+include::includes/quarkus-docling.adoc[leveloffset=+1, opts=optional]
