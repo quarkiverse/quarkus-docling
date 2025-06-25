@@ -50,6 +50,12 @@ public class DoclingService {
         this.doclingApi = doclingApi;
     }
 
+    /**
+     * Converts a document from a URI to given output format.
+     * @param uri of document to convert. It should be reachable from docling server.
+     * @param outputFormat of the parsed document.
+     * @return The response from docling serve.
+     */
     public ConvertDocumentResponse convertFromUri(URI uri, OutputFormat outputFormat) {
         HttpSource httpSource = new HttpSource();
         httpSource.setUrl(uri);
@@ -65,6 +71,13 @@ public class DoclingService {
                 .processUrlV1alphaConvertSourcePost(conversionRequest);
     }
 
+    /**
+     * Converts a document from a byte[] to given output format.
+     * @param content as chunk of bytes
+     * @param filename of input. Used for detecting input format.
+     * @param outputFormat of the parsed document.
+     * @return The response from docling serve.
+     */
     public ConvertDocumentResponse convertFromBytes(
             byte[] content, String filename, OutputFormat outputFormat) {
         String base64Document = Base64.getEncoder().encodeToString(content);
@@ -72,6 +85,13 @@ public class DoclingService {
         return this.convertFromBase64(base64Document, filename, outputFormat);
     }
 
+    /**
+     * Converts a document from a Base64 string to given output format.
+     * @param base64Content
+     * @param filename of input. Used for detecting input format.
+     * @param outputFormat of the parsed document.
+     * @return The response from docling serve.
+     */
     public ConvertDocumentResponse convertFromBase64(
             String base64Content, String filename, OutputFormat outputFormat) {
 
