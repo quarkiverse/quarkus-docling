@@ -1,4 +1,10 @@
-package io.quarkiverse.docling.runtime;
+package io.quarkiverse.docling.runtime.client;
+
+import java.net.URI;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.List;
+import java.util.Optional;
 
 import io.quarkiverse.docling.runtime.client.api.DoclingApi;
 import io.quarkiverse.docling.runtime.client.model.ConversionRequest;
@@ -7,18 +13,42 @@ import io.quarkiverse.docling.runtime.client.model.ConvertDocumentsOptions;
 import io.quarkiverse.docling.runtime.client.model.FileSource;
 import io.quarkiverse.docling.runtime.client.model.HttpSource;
 import io.quarkiverse.docling.runtime.client.model.OutputFormat;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
 
-import java.net.URI;
-import java.util.Base64;
-import java.util.List;
+/**
+ * Service class for interacting with the Docling API. Provides methods for document conversion
+ * and health status checks of the external API service.
+ */
+public class DoclingService {
+    private final DoclingApi doclingApi;
 
-@ApplicationScoped
-public class Docling {
+    /**
+     * Enumerates the possible statuses with an optional associated string representation.
+     */
+    public enum Status {
+        OK("ok"),
+        NOT_OK;
 
-    @Inject
-    DoclingApi doclingApi;
+        private final String statusText;
+
+        Status(String statusText) {
+            this.statusText = statusText;
+        }
+
+        Status() {
+            this(null);
+        }
+
+        public static Optional<Status> from(String statusText) {
+            return Optional.ofNullable(statusText)
+                    .flatMap(st -> Arrays.stream(values())
+                            .filter(status -> st.equals(status.statusText))
+                            .findFirst());
+        }
+    }
+
+    public DoclingService(DoclingApi doclingApi) {
+        this.doclingApi = doclingApi;
+    }
 
     public ConvertDocumentResponse convertFromUri(URI uri, OutputFormat outputFormat) {
         HttpSource httpSource = new HttpSource();
@@ -31,9 +61,8 @@ public class Docling {
         convertDocumentsOptions.setToFormats(List.of(outputFormat));
         conversionRequest.options(convertDocumentsOptions);
 
-        return doclingApi
+        return this.doclingApi
                 .processUrlV1alphaConvertSourcePost(conversionRequest);
-
     }
 
     public ConvertDocumentResponse convertFromBytes(
@@ -56,8 +85,18 @@ public class Docling {
         convertDocumentsOptions.setToFormats(List.of(outputFormat));
         conversionRequest.options(convertDocumentsOptions);
 
-        return doclingApi
+        return this.doclingApi
                 .processUrlV1alphaConvertSourcePost(conversionRequest);
     }
 
+    /**
+     * Checks the health status of the external Docling API service.
+     *
+     * @return {@code true} if the health status returned from the service is "ok"; {@code false} otherwise.
+     */
+    public boolean isHealthy() {
+        return Status.from(this.doclingApi.healthHealthGet().getStatus())
+                .map(status -> status == Status.OK)
+                .orElse(false);
+    }
 }
