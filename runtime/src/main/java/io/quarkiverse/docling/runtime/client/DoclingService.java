@@ -52,6 +52,7 @@ public class DoclingService {
 
     /**
      * Converts a document from a URI to given output format.
+     *
      * @param uri of document to convert. It should be reachable from docling server.
      * @param outputFormat of the parsed document.
      * @return The response from docling serve.
@@ -73,6 +74,7 @@ public class DoclingService {
 
     /**
      * Converts a document from a byte[] to given output format.
+     *
      * @param content as chunk of bytes
      * @param filename of input. Used for detecting input format.
      * @param outputFormat of the parsed document.
@@ -87,6 +89,7 @@ public class DoclingService {
 
     /**
      * Converts a document from a Base64 string to given output format.
+     *
      * @param base64Content
      * @param filename of input. Used for detecting input format.
      * @param outputFormat of the parsed document.
