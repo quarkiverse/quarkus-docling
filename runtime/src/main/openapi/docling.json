@@ -1983,7 +1983,7 @@
             "title": "Mimetype"
           },
           "binary_hash": {
-            "type": "integer",
+            "type": "long",
             "maximum": 18446744073709552000,
             "minimum": 0,
             "title": "Binary Hash"
