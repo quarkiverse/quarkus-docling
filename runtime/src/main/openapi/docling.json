@@ -2595,17 +2595,7 @@
             "$ref": "#/components/schemas/Size"
           },
           "uri": {
-            "anyOf": [
-              {
-                "type": "string",
-                "minLength": 1,
-                "format": "uri"
-              },
-              {
-                "type": "string",
-                "format": "path"
-              }
-            ],
+            "type": "string",
             "title": "Uri"
           }
         },
@@ -4234,6 +4224,7 @@
               "page_header",
               "paragraph",
               "reference",
+              "section_header",
               "text"
             ],
             "title": "Label"
