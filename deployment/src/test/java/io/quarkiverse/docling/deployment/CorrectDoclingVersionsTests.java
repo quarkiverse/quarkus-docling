@@ -11,12 +11,11 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import io.quarkus.test.QuarkusUnitTest;
-
 import io.quarkiverse.docling.deployment.config.DoclingBuildTimeConfig;
 import io.quarkiverse.docling.deployment.devservices.config.DoclingDevServicesConfig;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.quarkiverse.docling.testing.internal.WiremockAware;
+import io.quarkus.test.QuarkusUnitTest;
 import io.swagger.v3.parser.OpenAPIV3Parser;
 
 class CorrectDoclingVersionsTests extends WiremockAware {
