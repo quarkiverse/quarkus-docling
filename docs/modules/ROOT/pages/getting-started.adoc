@@ -33,3 +33,11 @@ This is still a work in process. Currently, you simply inject the api client and
 @Inject
 DoclingApi doclingApi;
 ----
+
+There's also a service class you can inject that simplifies the API a bit that can be used for simple use cases:
+
+[source,java]
+----
+@Inject
+DoclingService doclingService
+----
