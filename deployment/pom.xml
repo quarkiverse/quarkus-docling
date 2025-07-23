@@ -78,6 +78,12 @@
             <artifactId>assertj-core</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.swagger.parser.v3</groupId>
+            <artifactId>swagger-parser</artifactId>
+            <version>2.1.27</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
