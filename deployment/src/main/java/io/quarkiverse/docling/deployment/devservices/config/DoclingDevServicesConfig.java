@@ -10,7 +10,7 @@ public interface DoclingDevServicesConfig {
     /**
      * Default image name
      */
-    String DOCLING_IMAGE = "quay.io/docling-project/docling-serve:main";
+    String DOCLING_IMAGE = "quay.io/docling-project/docling-serve:v0.13.0";
 
     /**
      * If DevServices has been explicitly enabled or disabled. DevServices are generally enabled

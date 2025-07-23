@@ -49,7 +49,7 @@ Environment variable: `+++QUARKUS_DOCLING_DEVSERVICES_IMAGE_NAME+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`quay.io/docling-project/docling-serve:main`
+|`quay.io/docling-project/docling-serve:v0.13.0`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-enable-ui]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-enable-ui[`quarkus.docling.devservices.enable-ui`]##
 ifdef::add-copy-button-to-config-props[]
