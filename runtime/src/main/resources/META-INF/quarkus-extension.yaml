@@ -7,6 +7,7 @@ metadata:
     -
     - docling
   guide: "https://docs.quarkiverse.io/quarkus-docling/dev/index.html"
+  icon-url: "https://raw.githubusercontent.com/docling-project/docling-serve/main/docs/assets/docling-serve-pic.png"
   categories:
     - "ai"
   scm:
