@@ -34,7 +34,7 @@
     <assertj.version>3.27.4</assertj.version>
     <compiler-plugin.version>3.14.0</compiler-plugin.version>
     <maven.compiler.release>17</maven.compiler.release>
-    <openapi.generator.version>2.10.0-lts</openapi.generator.version>
+    <openapi.generator.version>2.12.0-lts</openapi.generator.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>3.20.0</quarkus.version>
