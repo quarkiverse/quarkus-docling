@@ -31,7 +31,7 @@
   </issueManagement>
 
   <properties>
-    <assertj.version>3.27.4</assertj.version>
+    <assertj.version>3.27.5</assertj.version>
     <compiler-plugin.version>3.14.0</compiler-plugin.version>
     <maven.compiler.release>17</maven.compiler.release>
     <openapi.generator.version>2.10.0-lts</openapi.generator.version>
