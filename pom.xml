@@ -32,7 +32,7 @@
 
   <properties>
     <assertj.version>3.27.5</assertj.version>
-    <compiler-plugin.version>3.14.0</compiler-plugin.version>
+    <compiler-plugin.version>3.14.1</compiler-plugin.version>
     <maven.compiler.release>17</maven.compiler.release>
     <openapi.generator.version>2.10.0-lts</openapi.generator.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
