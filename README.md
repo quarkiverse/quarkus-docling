@@ -34,6 +34,8 @@ The eventual goal is to unify the [DoclingDocument][docling_document] format wit
 
 Take a look at [the documentation](https://docs.quarkiverse.io/quarkus-docling/dev) for more information.
 
+Or you can see an example with a video at: https://github.com/lordofthejars-ai/mission-impossible-rag
+
 ## Contributors ✨
 
 Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
