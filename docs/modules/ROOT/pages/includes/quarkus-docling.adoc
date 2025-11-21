@@ -7,32 +7,9 @@ h|[.header-title]##Configuration property##
 h|Type
 h|Default
 
-a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-enabled]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-enabled[`quarkus.docling.devservices.enabled`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-image]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-image[`quarkus.docling.devservices.image`]##
 ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.docling.devservices.enabled+++[]
-endif::add-copy-button-to-config-props[]
-
-
-[.description]
---
-If DevServices has been explicitly enabled or disabled. DevServices are generally enabled by default, unless there is an existing configuration present.
-
-When DevServices is enabled, Quarkus will attempt to automatically configure and start a Docling server when running in Dev or Test mode.
-
-
-ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_DOCLING_DEVSERVICES_ENABLED+++[]
-endif::add-copy-button-to-env-var[]
-ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_DOCLING_DEVSERVICES_ENABLED+++`
-endif::add-copy-button-to-env-var[]
---
-|boolean
-|`true`
-
-a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-image-name]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-image-name[`quarkus.docling.devservices.image-name`]##
-ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.docling.devservices.image-name+++[]
+config_property_copy_button:+++quarkus.docling.devservices.image+++[]
 endif::add-copy-button-to-config-props[]
 
 
@@ -42,14 +19,14 @@ The container image name to use.
 
 
 ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_DOCLING_DEVSERVICES_IMAGE_NAME+++[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_DOCLING_DEVSERVICES_IMAGE+++[]
 endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_DOCLING_DEVSERVICES_IMAGE_NAME+++`
+Environment variable: `+++QUARKUS_DOCLING_DEVSERVICES_IMAGE+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`quay.io/docling-project/docling-serve:v0.13.0`
+|`+++ghcr.io/docling-project/docling-serve:v1.8.0+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-enable-ui]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-enable-ui[`quarkus.docling.devservices.enable-ui`]##
 ifdef::add-copy-button-to-config-props[]
@@ -72,7 +49,7 @@ Environment variable: `+++QUARKUS_DOCLING_DEVSERVICES_ENABLE_UI+++`
 endif::add-copy-button-to-env-var[]
 --
 |boolean
-|`true`
+|`+++true+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-container-env-container-env]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-container-env-container-env[`quarkus.docling.devservices.container-env."container-env"`]##
 ifdef::add-copy-button-to-config-props[]
@@ -94,6 +71,50 @@ endif::add-copy-button-to-env-var[]
 --
 |Map<String,String>
 |
+
+a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-startup-timeout]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-startup-timeout[`quarkus.docling.devservices.startup-timeout`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.docling.devservices.startup-timeout+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Specifies the maximum duration to wait for the container to fully start up. This value determines the timeout period for the startup process, ensuring that the container is operational within a defined timeframe. Default Value: `quarkus.devservices.timeout`
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_DOCLING_DEVSERVICES_STARTUP_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_DOCLING_DEVSERVICES_STARTUP_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--
+|link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-docling_quarkus-docling[icon:question-circle[title=More information about the Duration format]]
+|`+++${QUARKUS.DEVSERVICES.TIMEOUT:PT1M}+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-enabled]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-enabled[`quarkus.docling.devservices.enabled`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.docling.devservices.enabled+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+If DevServices has been explicitly enabled or disabled. DevServices are generally enabled by default, unless there is an existing configuration present.
+
+When DevServices is enabled, Quarkus will attempt to automatically configure and start a Docling server when running in Dev or Test mode.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_DOCLING_DEVSERVICES_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_DOCLING_DEVSERVICES_ENABLED+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++true+++`
 
 a| [[quarkus-docling_quarkus-docling-base-url]] [.property-path]##link:#quarkus-docling_quarkus-docling-base-url[`quarkus.docling.base-url`]##
 ifdef::add-copy-button-to-config-props[]
@@ -135,7 +156,7 @@ Environment variable: `+++QUARKUS_DOCLING_TIMEOUT+++`
 endif::add-copy-button-to-env-var[]
 --
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-docling_quarkus-docling[icon:question-circle[title=More information about the Duration format]]
-|`1M`
+|`+++1M+++`
 
 a| [[quarkus-docling_quarkus-docling-log-requests]] [.property-path]##link:#quarkus-docling_quarkus-docling-log-requests[`quarkus.docling.log-requests`]##
 ifdef::add-copy-button-to-config-props[]
@@ -156,7 +177,7 @@ Environment variable: `+++QUARKUS_DOCLING_LOG_REQUESTS+++`
 endif::add-copy-button-to-env-var[]
 --
 |boolean
-|`false`
+|`+++false+++`
 
 a| [[quarkus-docling_quarkus-docling-log-responses]] [.property-path]##link:#quarkus-docling_quarkus-docling-log-responses[`quarkus.docling.log-responses`]##
 ifdef::add-copy-button-to-config-props[]
@@ -177,7 +198,7 @@ Environment variable: `+++QUARKUS_DOCLING_LOG_RESPONSES+++`
 endif::add-copy-button-to-env-var[]
 --
 |boolean
-|`false`
+|`+++false+++`
 
 |===
 

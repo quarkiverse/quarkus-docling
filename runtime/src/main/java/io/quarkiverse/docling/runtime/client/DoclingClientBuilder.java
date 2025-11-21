@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.jboss.resteasy.reactive.client.api.LoggingScope;
 
-import io.quarkiverse.docling.runtime.client.api.DoclingApi;
+import ai.docling.api.serve.DoclingServeApi;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
 
@@ -45,7 +45,7 @@ public final class DoclingClientBuilder {
         return this;
     }
 
-    public DoclingApi build() {
+    public DoclingServeApi build() {
         if ((baseUrl == null) || baseUrl.trim().isBlank()) {
             throw new IllegalArgumentException(DoclingRuntimeConfig.BASE_URL_KEY + " cannot be null or empty");
         }
@@ -64,7 +64,7 @@ public final class DoclingClientBuilder {
                         .clientLogger(new DoclingClientLogger(logRequests, logResponses));
             }
 
-            return restApiBuilder.build(DoclingApi.class);
+            return restApiBuilder.build(QuarkusDoclingServeClient.class);
         } catch (URISyntaxException ex) {
             throw new RuntimeException(ex);
         }

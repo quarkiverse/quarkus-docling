@@ -15,7 +15,7 @@ class DoclingRecorderTests {
     @Test
     void noBaseUrlSet() {
         assertThatExceptionOfType(IllegalArgumentException.class)
-                .isThrownBy(() -> recorder.doclingClient().get())
+                .isThrownBy(() -> recorder.doclingServeApi().get())
                 .withFailMessage("quarkus.docling.base-url cannot be null or empty");
     }
 }

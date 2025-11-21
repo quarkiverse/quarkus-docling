@@ -26,12 +26,12 @@ dependencies {
 
 == Usage
 
-This is still a work in process. Currently, you simply inject the api client and use its methods:
+This is still a work in process. Currently, you simply inject the `ai.docling.api.serve.DoclingServeAPI` client and use its methods:
 
 [source,java]
 ----
 @Inject
-DoclingApi doclingApi;
+DoclingServeApi doclingServeApi;
 ----
 
 There's also a service class you can inject that simplifies the API a bit that can be used for simple use cases:
@@ -39,5 +39,27 @@ There's also a service class you can inject that simplifies the API a bit that c
 [source,java]
 ----
 @Inject
-DoclingService doclingService
+DoclingService doclingService;
 ----
+
+== Dev Services
+
+The https://quarkus.io/guides/dev-services[Docling dev service] provides a https://docling-project.github.io/docling-java/dev/testcontainers[Docling Serve Container] for you automatically during dev mode and testing. See the xref:all-config.adoc[configuration options] for available configuration properties.
+
+== Dev UI
+
+The Quarkus Docling extension provides a card in the https://quarkus.io/guides/dev-ui[Dev UI]:
+
+image::docling-devui.png[Docling Dev UI Card]
+
+=== Docling UI
+
+The card exposes the https://github.com/docling-project/docling-serve?tab=readme-ov-file#demonstration-ui[Docling Serve UI]:
+
+image::docling-ui.png[Docling Serve UI]
+
+=== Swagger UI
+
+The card also exposes the https://swagger.io/tools/swagger-ui[Swagger UI endpoint] for the https://github.com/docling-project/docling-serve[Docling Serve] instance:
+
+image::docling-swagger-ui.png[Docling Swagger UI]
