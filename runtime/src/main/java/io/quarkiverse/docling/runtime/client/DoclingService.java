@@ -1,25 +1,27 @@
 package io.quarkiverse.docling.runtime.client;
 
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.List;
 import java.util.Optional;
 
-import io.quarkiverse.docling.runtime.client.api.DoclingApi;
-import io.quarkiverse.docling.runtime.client.model.ConversionRequest;
-import io.quarkiverse.docling.runtime.client.model.ConvertDocumentResponse;
-import io.quarkiverse.docling.runtime.client.model.ConvertDocumentsOptions;
-import io.quarkiverse.docling.runtime.client.model.FileSource;
-import io.quarkiverse.docling.runtime.client.model.HttpSource;
-import io.quarkiverse.docling.runtime.client.model.OutputFormat;
+import ai.docling.api.serve.DoclingServeApi;
+import ai.docling.api.serve.convert.request.ConvertDocumentRequest;
+import ai.docling.api.serve.convert.request.options.ConvertDocumentOptions;
+import ai.docling.api.serve.convert.request.options.OutputFormat;
+import ai.docling.api.serve.convert.request.source.FileSource;
+import ai.docling.api.serve.convert.request.source.HttpSource;
+import ai.docling.api.serve.convert.response.ConvertDocumentResponse;
 
 /**
  * Service class for interacting with the Docling API. Provides methods for document conversion
  * and health status checks of the external API service.
  */
 public class DoclingService {
-    private final DoclingApi doclingApi;
+    private final DoclingServeApi doclingServeApi;
 
     /**
      * Enumerates the possible statuses with an optional associated string representation.
@@ -46,8 +48,8 @@ public class DoclingService {
         }
     }
 
-    public DoclingService(DoclingApi doclingApi) {
-        this.doclingApi = doclingApi;
+    public DoclingService(DoclingServeApi doclingServeApi) {
+        this.doclingServeApi = doclingServeApi;
     }
 
     /**
@@ -58,18 +60,20 @@ public class DoclingService {
      * @return The response from docling serve.
      */
     public ConvertDocumentResponse convertFromUri(URI uri, OutputFormat outputFormat) {
-        HttpSource httpSource = new HttpSource();
-        httpSource.setUrl(uri);
+        var httpSource = HttpSource.builder()
+                .url(uri)
+                .build();
 
-        ConversionRequest conversionRequest = new ConversionRequest();
-        conversionRequest.addHttpSourcesItem(httpSource);
+        var options = ConvertDocumentOptions.builder()
+                .toFormat(outputFormat)
+                .build();
 
-        ConvertDocumentsOptions convertDocumentsOptions = new ConvertDocumentsOptions();
-        convertDocumentsOptions.setToFormats(List.of(outputFormat));
-        conversionRequest.options(convertDocumentsOptions);
+        var conversionRequest = ConvertDocumentRequest.builder()
+                .source(httpSource)
+                .options(options)
+                .build();
 
-        return this.doclingApi
-                .processUrlV1alphaConvertSourcePost(conversionRequest);
+        return this.doclingServeApi.convertSource(conversionRequest);
     }
 
     /**
@@ -80,11 +84,35 @@ public class DoclingService {
      * @param outputFormat of the parsed document.
      * @return The response from docling serve.
      */
-    public ConvertDocumentResponse convertFromBytes(
-            byte[] content, String filename, OutputFormat outputFormat) {
+    public ConvertDocumentResponse convertFromBytes(byte[] content, String filename, OutputFormat outputFormat) {
         String base64Document = Base64.getEncoder().encodeToString(content);
 
-        return this.convertFromBase64(base64Document, filename, outputFormat);
+        return convertFromBase64(base64Document, filename, outputFormat);
+    }
+
+    /**
+     * Converts a document from a file to the specified output format.
+     *
+     * @param file the path of the file to be converted. Must not be null, must exist, and must be a regular file.
+     * @param outputFormat the desired output format for the parsed document.
+     * @return the response from the Docling service after converting the document.
+     * @throws IOException if an I/O error occurs while reading the file.
+     * @throws IllegalArgumentException if the file is null, does not exist, or is not a regular file.
+     */
+    public ConvertDocumentResponse convertFile(Path file, OutputFormat outputFormat) throws IOException {
+        if (file == null) {
+            throw new IllegalArgumentException("file cannot be null");
+        }
+
+        if (!Files.exists(file)) {
+            throw new IllegalArgumentException("file does not exist");
+        }
+
+        if (!Files.isRegularFile(file)) {
+            throw new IllegalArgumentException("file %s is not a regular file".formatted(file));
+        }
+
+        return convertFromBytes(Files.readAllBytes(file), file.getFileName().toString(), outputFormat);
     }
 
     /**
@@ -95,21 +123,22 @@ public class DoclingService {
      * @param outputFormat of the parsed document.
      * @return The response from docling serve.
      */
-    public ConvertDocumentResponse convertFromBase64(
-            String base64Content, String filename, OutputFormat outputFormat) {
+    public ConvertDocumentResponse convertFromBase64(String base64Content, String filename, OutputFormat outputFormat) {
+        var options = ConvertDocumentOptions.builder()
+                .toFormat(outputFormat)
+                .build();
 
-        FileSource fileSource = new FileSource();
-        fileSource.base64String(base64Content);
-        fileSource.setFilename(filename);
+        var fileSource = FileSource.builder()
+                .filename(filename)
+                .base64String(base64Content)
+                .build();
 
-        ConversionRequest conversionRequest = new ConversionRequest();
-        conversionRequest.addFileSourcesItem(fileSource);
-        ConvertDocumentsOptions convertDocumentsOptions = new ConvertDocumentsOptions();
-        convertDocumentsOptions.setToFormats(List.of(outputFormat));
-        conversionRequest.options(convertDocumentsOptions);
+        var conversionRequest = ConvertDocumentRequest.builder()
+                .source(fileSource)
+                .options(options)
+                .build();
 
-        return this.doclingApi
-                .processUrlV1alphaConvertSourcePost(conversionRequest);
+        return this.doclingServeApi.convertSource(conversionRequest);
     }
 
     /**
@@ -118,7 +147,7 @@ public class DoclingService {
      * @return {@code true} if the health status returned from the service is "ok"; {@code false} otherwise.
      */
     public boolean isHealthy() {
-        return Status.from(this.doclingApi.healthHealthGet().getStatus())
+        return Status.from(this.doclingServeApi.health().getStatus())
                 .map(status -> status == Status.OK)
                 .orElse(false);
     }

@@ -1,21 +1,17 @@
 package io.quarkiverse.docling.deployment.devservices;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 import org.jboss.logging.Logger;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.utility.DockerImageName;
 
+import ai.docling.testcontainers.serve.DoclingServeContainer;
 import io.quarkiverse.docling.deployment.devservices.config.DoclingDevServicesConfig;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.quarkus.devservices.common.ConfigureUtil;
 
-public class DoclingContainer extends GenericContainer<DoclingContainer> {
+public class DoclingContainer extends DoclingServeContainer {
     private static final Logger LOG = Logger.getLogger(DoclingContainer.class);
 
     /**
@@ -44,35 +40,18 @@ public class DoclingContainer extends GenericContainer<DoclingContainer> {
      */
     public static final String CONFIG_DOCLING_UI = DoclingDevServicesProcessor.FEATURE + ".docling.ui";
 
-    /**
-     * The default container port that docling runs on
-     */
-    public static final int DEFAULT_DOCLING_PORT = 5001;
-
     private final boolean useSharedNetwork;
 
     /**
      * The dynamic host name determined from TestContainers
      */
     private String hostName;
-    private DoclingDevServicesConfig config;
+    private final DoclingDevServicesConfig config;
 
-    DoclingContainer(DoclingDevServicesConfig config, Optional<Duration> timeout, boolean useSharedNetwork) {
-        super(DockerImageName.parse(config.imageName()).asCompatibleSubstituteFor(DoclingDevServicesConfig.DOCLING_IMAGE));
+    DoclingContainer(DoclingDevServicesConfig config, boolean useSharedNetwork) {
+        super(config);
         this.config = config;
         this.useSharedNetwork = useSharedNetwork;
-
-        // Configure the container
-        withLabel(DoclingDevServicesProcessor.DEV_SERVICE_LABEL, DoclingDevServicesProcessor.PROVIDER);
-        withExposedPorts(DEFAULT_DOCLING_PORT);
-        withEnv(config.containerEnv());
-        waitingFor(Wait.forHttp("/health"));
-
-        if (config.enableUi()) {
-            withEnv("DOCLING_SERVE_ENABLE_UI", "true");
-        }
-
-        timeout.ifPresentOrElse(super::withStartupTimeout, () -> withStartupTimeout(Duration.ofMinutes(1)));
     }
 
     @Override
@@ -108,10 +87,6 @@ public class DoclingContainer extends GenericContainer<DoclingContainer> {
         exposed.putAll(getEnvMap());
 
         return exposed;
-    }
-
-    public int getPort() {
-        return getMappedPort(DEFAULT_DOCLING_PORT);
     }
 
     @Override

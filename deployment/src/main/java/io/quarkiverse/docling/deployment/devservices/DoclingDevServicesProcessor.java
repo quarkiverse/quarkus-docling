@@ -1,6 +1,5 @@
 package io.quarkiverse.docling.deployment.devservices;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,7 +24,6 @@ import io.quarkus.deployment.builditem.LaunchModeBuildItem;
 import io.quarkus.deployment.builditem.PodmanStatusBuildItem;
 import io.quarkus.deployment.console.ConsoleInstalledBuildItem;
 import io.quarkus.deployment.console.StartupLogCompressor;
-import io.quarkus.deployment.dev.devservices.DevServicesConfig;
 import io.quarkus.deployment.dev.devservices.DevServicesConfig.Enabled;
 import io.quarkus.deployment.logging.LoggingSetupBuildItem;
 import io.quarkus.runtime.configuration.ConfigUtils;
@@ -61,7 +59,6 @@ class DoclingDevServicesProcessor {
             PodmanStatusBuildItem podmanStatusBuildItem,
             Optional<ConsoleInstalledBuildItem> consoleInstalledBuildItem,
             LoggingSetupBuildItem loggingSetupBuildItem,
-            DevServicesConfig devServicesConfig,
             CuratedApplicationShutdownBuildItem shutdownBuildItem,
             List<DevServicesSharedNetworkBuildItem> devServicesSharedNetworkBuildItem,
             BuildProducer<DoclingDevServicesConfigBuildItem> doclingDevServicesConfigBuildProducer,
@@ -91,7 +88,6 @@ class DoclingDevServicesProcessor {
 
         try {
             startContainer(dockerStatusBuildItem, podmanStatusBuildItem, doclingDevServicesBuildConfig,
-                    devServicesConfig.timeout(),
                     !devServicesSharedNetworkBuildItem.isEmpty())
                     .ifPresentOrElse(
                             devService -> {
@@ -141,7 +137,6 @@ class DoclingDevServicesProcessor {
             DockerStatusBuildItem dockerStatusBuildItem,
             PodmanStatusBuildItem podmanStatusBuildItem,
             DoclingDevServicesConfig doclingDevServicesConfig,
-            Optional<Duration> timeout,
             boolean useSharedNetwork) {
 
         if (!doclingDevServicesConfig.enabled()) {
@@ -163,7 +158,7 @@ class DoclingDevServicesProcessor {
             return Optional.empty();
         }
 
-        var doclingContainer = new DoclingContainer(doclingDevServicesConfig, timeout, useSharedNetwork);
+        var doclingContainer = new DoclingContainer(doclingDevServicesConfig, useSharedNetwork);
         doclingContainer.start();
 
         return Optional.of(

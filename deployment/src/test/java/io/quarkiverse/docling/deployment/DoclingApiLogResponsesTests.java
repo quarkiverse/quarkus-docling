@@ -13,8 +13,8 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import io.quarkiverse.docling.runtime.client.api.DoclingApi;
-import io.quarkiverse.docling.runtime.client.model.HealthCheckResponse;
+import ai.docling.api.serve.DoclingServeApi;
+import ai.docling.api.serve.health.HealthCheckResponse;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.quarkus.test.QuarkusUnitTest;
 
@@ -27,11 +27,11 @@ class DoclingApiLogResponsesTests extends RequestResponseLoggingTests {
             .overrideRuntimeConfigKey("quarkus.docling.log-responses", "true");
 
     @Inject
-    DoclingApi doclingApi;
+    DoclingServeApi doclingApi;
 
     @Test
     void responseLogged() {
-        assertThat(doclingApi.healthHealthGet())
+        assertThat(doclingApi.health())
                 .isNotNull()
                 .extracting(HealthCheckResponse::getStatus)
                 .isEqualTo("ok");
