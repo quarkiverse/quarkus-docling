@@ -3,11 +3,9 @@ package io.quarkiverse.docling.deployment.devservices.config;
 import java.time.Duration;
 import java.util.Map;
 
-import io.quarkus.runtime.annotations.ConfigGroup;
-
-import io.smallrye.config.WithDefault;
-
 import ai.docling.testcontainers.serve.config.DoclingServeContainerConfig;
+import io.quarkus.runtime.annotations.ConfigGroup;
+import io.smallrye.config.WithDefault;
 
 @ConfigGroup
 public interface DoclingDevServicesConfig extends DoclingServeContainerConfig {
