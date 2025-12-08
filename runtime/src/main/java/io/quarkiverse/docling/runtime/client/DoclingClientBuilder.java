@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.jboss.resteasy.reactive.client.api.LoggingScope;
 
-import ai.docling.api.serve.DoclingServeApi;
+import ai.docling.serve.api.DoclingServeApi;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
 

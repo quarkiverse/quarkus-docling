@@ -5,7 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
 
-import ai.docling.api.serve.DoclingServeApi;
+import ai.docling.serve.api.DoclingServeApi;
 import io.quarkiverse.docling.runtime.DoclingRecorder;
 import io.quarkiverse.docling.runtime.client.DoclingService;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;

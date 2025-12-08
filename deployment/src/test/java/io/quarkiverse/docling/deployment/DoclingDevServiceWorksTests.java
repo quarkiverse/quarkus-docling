@@ -9,8 +9,8 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import ai.docling.api.serve.DoclingServeApi;
-import ai.docling.api.serve.health.HealthCheckResponse;
+import ai.docling.serve.api.DoclingServeApi;
+import ai.docling.serve.api.health.HealthCheckResponse;
 import io.quarkus.test.QuarkusUnitTest;
 
 class DoclingDevServiceWorksTests {

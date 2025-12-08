@@ -8,13 +8,16 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Optional;
 
-import ai.docling.api.serve.DoclingServeApi;
-import ai.docling.api.serve.convert.request.ConvertDocumentRequest;
-import ai.docling.api.serve.convert.request.options.ConvertDocumentOptions;
-import ai.docling.api.serve.convert.request.options.OutputFormat;
-import ai.docling.api.serve.convert.request.source.FileSource;
-import ai.docling.api.serve.convert.request.source.HttpSource;
-import ai.docling.api.serve.convert.response.ConvertDocumentResponse;
+import ai.docling.serve.api.DoclingServeApi;
+import ai.docling.serve.api.chunk.request.HierarchicalChunkDocumentRequest;
+import ai.docling.serve.api.chunk.request.HybridChunkDocumentRequest;
+import ai.docling.serve.api.chunk.response.ChunkDocumentResponse;
+import ai.docling.serve.api.convert.request.ConvertDocumentRequest;
+import ai.docling.serve.api.convert.request.options.ConvertDocumentOptions;
+import ai.docling.serve.api.convert.request.options.OutputFormat;
+import ai.docling.serve.api.convert.request.source.FileSource;
+import ai.docling.serve.api.convert.request.source.HttpSource;
+import ai.docling.serve.api.convert.response.ConvertDocumentResponse;
 
 /**
  * Service class for interacting with the Docling API. Provides methods for document conversion
@@ -22,6 +25,20 @@ import ai.docling.api.serve.convert.response.ConvertDocumentResponse;
  */
 public class DoclingService {
     private final DoclingServeApi doclingServeApi;
+
+    /**
+     * Defines the types of document chunking strategies available for processing documents.
+     *
+     * The chunking strategies determine how a document is segmented into smaller parts:
+     * - HIERARCHICAL: A structured approach that organizes the document into a tree-like
+     * hierarchy of nested chunks based on the document's logical structure.
+     * - HYBRID: A mixed approach that combines multiple strategies for chunking
+     * to suit specific processing or output requirements.
+     */
+    public enum ChunkType {
+        HIERARCHICAL,
+        HYBRID
+    }
 
     /**
      * Enumerates the possible statuses with an optional associated string representation.
@@ -77,6 +94,54 @@ public class DoclingService {
     }
 
     /**
+     * Processes a hybrid chunking operation on a document accessible via a URI.
+     *
+     * @param uri the URI of the document to be chunked. The resource should be reachable by the Docling server.
+     * @param outputFormat the desired output format for the chunked document.
+     * @return the response containing the result of the hybrid chunking operation.
+     */
+    public ChunkDocumentResponse hybridChunkFromUri(URI uri, OutputFormat outputFormat) {
+        var httpSource = HttpSource.builder()
+                .url(uri)
+                .build();
+
+        var options = ConvertDocumentOptions.builder()
+                .toFormat(outputFormat)
+                .build();
+
+        var conversionRequest = HybridChunkDocumentRequest.builder()
+                .source(httpSource)
+                .options(options)
+                .build();
+
+        return this.doclingServeApi.chunkSourceWithHybridChunker(conversionRequest);
+    }
+
+    /**
+     * Processes a hierarchical chunking operation on a document accessible via a URI.
+     *
+     * @param uri the URI of the document to be chunked. The resource should be reachable by the Docling server.
+     * @param outputFormat the desired output format for the chunked document.
+     * @return the response containing the result of the hierarchical chunking operation.
+     */
+    public ChunkDocumentResponse hierarchicalChunkFromUri(URI uri, OutputFormat outputFormat) {
+        var httpSource = HttpSource.builder()
+                .url(uri)
+                .build();
+
+        var options = ConvertDocumentOptions.builder()
+                .toFormat(outputFormat)
+                .build();
+
+        var conversionRequest = HierarchicalChunkDocumentRequest.builder()
+                .source(httpSource)
+                .options(options)
+                .build();
+
+        return this.doclingServeApi.chunkSourceWithHierarchicalChunker(conversionRequest);
+    }
+
+    /**
      * Converts a document from a byte[] to given output format.
      *
      * @param content as chunk of bytes
@@ -88,6 +153,22 @@ public class DoclingService {
         String base64Document = Base64.getEncoder().encodeToString(content);
 
         return convertFromBase64(base64Document, filename, outputFormat);
+    }
+
+    /**
+     * Processes a chunking operation on a document provided as a byte array.
+     *
+     * @param content the byte array representing the document content to be chunked.
+     * @param filename the name of the input file. This is used to infer the file type of the document.
+     * @param outputFormat the desired output format for the chunked document.
+     * @param chunkType the type of chunking strategy to apply. It determines how the document will be segmented.
+     * @return the response containing the result of the chunking operation.
+     */
+    public ChunkDocumentResponse chunkFromBytes(byte[] content, String filename, OutputFormat outputFormat,
+            ChunkType chunkType) {
+        String base64Document = Base64.getEncoder().encodeToString(content);
+
+        return chunkFromBase64(base64Document, filename, outputFormat, chunkType);
     }
 
     /**
@@ -116,6 +197,56 @@ public class DoclingService {
     }
 
     /**
+     * Processes a hybrid chunking operation on a file and converts it into a specified output format.
+     *
+     * @param file the path of the file to be chunked. Must not be null, must exist, and must be a regular file.
+     * @param outputFormat the desired output format for the chunked document.
+     * @return the response containing the result of the hybrid chunking operation.
+     * @throws IOException if an I/O error occurs while reading the file.
+     * @throws IllegalArgumentException if the file is null, does not exist, or is not a regular file.
+     */
+    public ChunkDocumentResponse chunkFileHybrid(Path file, OutputFormat outputFormat) throws IOException {
+        if (file == null) {
+            throw new IllegalArgumentException("file cannot be null");
+        }
+
+        if (!Files.exists(file)) {
+            throw new IllegalArgumentException("file does not exist");
+        }
+
+        if (!Files.isRegularFile(file)) {
+            throw new IllegalArgumentException("file %s is not a regular file".formatted(file));
+        }
+
+        return chunkFromBytes(Files.readAllBytes(file), file.getFileName().toString(), outputFormat, ChunkType.HYBRID);
+    }
+
+    /**
+     * Processes a hierarchical chunking operation on a file and converts it into a specified output format.
+     *
+     * @param file the path of the file to be chunked. Must not be null, must exist, and must be a regular file.
+     * @param outputFormat the desired output format for the chunked document.
+     * @return the response containing the result of the hierarchical chunking operation.
+     * @throws IOException if an I/O error occurs while reading the file.
+     * @throws IllegalArgumentException if the file is null, does not exist, or is not a regular file.
+     */
+    public ChunkDocumentResponse chunkFileHierarchical(Path file, OutputFormat outputFormat) throws IOException {
+        if (file == null) {
+            throw new IllegalArgumentException("file cannot be null");
+        }
+
+        if (!Files.exists(file)) {
+            throw new IllegalArgumentException("file does not exist");
+        }
+
+        if (!Files.isRegularFile(file)) {
+            throw new IllegalArgumentException("file %s is not a regular file".formatted(file));
+        }
+
+        return chunkFromBytes(Files.readAllBytes(file), file.getFileName().toString(), outputFormat, ChunkType.HIERARCHICAL);
+    }
+
+    /**
      * Converts a document from a Base64 string to given output format.
      *
      * @param base64Content
@@ -139,6 +270,43 @@ public class DoclingService {
                 .build();
 
         return this.doclingServeApi.convertSource(conversionRequest);
+    }
+
+    /**
+     * Processes a chunking operation on a document provided as a Base64-encoded string.
+     *
+     * @param base64Content the Base64 string representing the document content to be chunked.
+     *        The string should be a valid Base64 encoding of the document.
+     * @param filename the name of the input file. This is used to infer the file type of the document.
+     * @param outputFormat the desired output format for the chunked document.
+     * @param chunkType the type of chunking strategy to apply. It determines how the document will be segmented.
+     *        Supported values are defined in {@code DoclingService.ChunkType}.
+     * @return the response containing the result of the chunking operation.
+     */
+    public ChunkDocumentResponse chunkFromBase64(String base64Content, String filename, OutputFormat outputFormat,
+            DoclingService.ChunkType chunkType) {
+        var options = ConvertDocumentOptions.builder()
+                .toFormat(outputFormat)
+                .build();
+
+        var fileSource = FileSource.builder()
+                .filename(filename)
+                .base64String(base64Content)
+                .build();
+
+        return switch (chunkType) {
+            case HYBRID -> this.doclingServeApi.chunkSourceWithHybridChunker(
+                    HybridChunkDocumentRequest.builder()
+                            .source(fileSource)
+                            .options(options)
+                            .build());
+
+            case HIERARCHICAL -> this.doclingServeApi.chunkSourceWithHierarchicalChunker(
+                    HierarchicalChunkDocumentRequest.builder()
+                            .source(fileSource)
+                            .options(options)
+                            .build());
+        };
     }
 
     /**
