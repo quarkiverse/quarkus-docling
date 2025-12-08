@@ -1,5 +1,6 @@
 package io.quarkiverse.docling.deployment.devservices;
 
+import java.net.Socket;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -7,6 +8,7 @@ import java.util.Optional;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 
+import ai.docling.testcontainers.serve.DoclingServeContainer;
 import io.quarkiverse.docling.deployment.config.DoclingBuildTimeConfig;
 import io.quarkiverse.docling.deployment.devservices.config.DoclingDevServicesConfig;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
@@ -77,6 +79,12 @@ class DoclingDevServicesProcessor {
 
             shutdown();
             DEV_SERVICES_CONFIG = null;
+        }
+
+        if (isDoclingRunning()) {
+            LOG.infof("Not starting Docling dev services container as it is already running on port %d",
+                    DoclingServeContainer.DEFAULT_DOCLING_PORT);
+            return;
         }
 
         // Re-initialize captured config and dev services
@@ -179,6 +187,14 @@ class DoclingDevServicesProcessor {
             } finally {
                 DEV_SERVICE = null;
             }
+        }
+    }
+
+    private boolean isDoclingRunning() {
+        try (var s = new Socket("localhost", DoclingServeContainer.DEFAULT_DOCLING_PORT)) {
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 }
