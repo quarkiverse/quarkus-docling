@@ -1,6 +1,7 @@
 package io.quarkiverse.docling.runtime.client;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -139,6 +140,37 @@ public class DoclingService {
                 .build();
 
         return this.doclingServeApi.chunkSourceWithHierarchicalChunker(conversionRequest);
+    }
+
+    /**
+     * Converts a document from a InputStream to given output format.
+     * This method reads all InputStream into a byte[].
+     *
+     * @param content as input stream.
+     * @param filename of input. Used for detecting input format.
+     * @param outputFormat of the parsed document.
+     * @return The response from docling serve.
+     * @throws IOException when a problem reading the InputStream
+     */
+    public ConvertDocumentResponse convertFromInputStream(InputStream content, String filename, OutputFormat outputFormat)
+            throws IOException {
+        return convertFromBytes(content.readAllBytes(), filename, outputFormat);
+    }
+
+    /**
+     * Processes a chunking operation on a document provided as an input stream.
+     * This method reads all InputStream into a byte[].
+     *
+     * @param content the input stream representing the document content to be chunked.
+     * @param filename the name of the input file. This is used to infer the file type of the document.
+     * @param outputFormat the desired output format for the chunked document.
+     * @param chunkType the type of chunking strategy to apply. It determines how the document will be segmented.
+     * @return the response containing the result of the chunking operation.
+     * @throws IOException when a problem reading the InputStream
+     */
+    public ChunkDocumentResponse chunkFromInputStream(InputStream content, String filename, OutputFormat outputFormat,
+            ChunkType chunkType) throws IOException {
+        return chunkFromBytes(content.readAllBytes(), filename, outputFormat, chunkType);
     }
 
     /**
