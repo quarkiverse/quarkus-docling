@@ -14,8 +14,8 @@ import jakarta.inject.Inject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import ai.docling.api.serve.convert.request.options.OutputFormat;
-import ai.docling.api.serve.convert.response.ConvertDocumentResponse;
+import ai.docling.serve.api.convert.request.options.OutputFormat;
+import ai.docling.serve.api.convert.response.ConvertDocumentResponse;
 import io.quarkiverse.docling.runtime.client.DoclingService;
 import io.quarkus.test.junit.QuarkusTest;
 

@@ -3,7 +3,7 @@ package io.quarkiverse.docling.runtime;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import ai.docling.api.serve.DoclingServeApi;
+import ai.docling.serve.api.DoclingServeApi;
 import io.quarkiverse.docling.runtime.client.DoclingClientBuilder;
 import io.quarkiverse.docling.runtime.client.DoclingService;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;

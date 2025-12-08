@@ -7,10 +7,13 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 
-import ai.docling.api.serve.DoclingServeApi;
-import ai.docling.api.serve.convert.request.ConvertDocumentRequest;
-import ai.docling.api.serve.convert.response.ConvertDocumentResponse;
-import ai.docling.api.serve.health.HealthCheckResponse;
+import ai.docling.serve.api.DoclingServeApi;
+import ai.docling.serve.api.chunk.request.HierarchicalChunkDocumentRequest;
+import ai.docling.serve.api.chunk.request.HybridChunkDocumentRequest;
+import ai.docling.serve.api.chunk.response.ChunkDocumentResponse;
+import ai.docling.serve.api.convert.request.ConvertDocumentRequest;
+import ai.docling.serve.api.convert.response.ConvertDocumentResponse;
+import ai.docling.serve.api.health.HealthCheckResponse;
 
 /**
  * A Quarkus REST Client interface for interacting with the Docling Serve API.
@@ -34,6 +37,20 @@ public interface QuarkusDoclingServeClient extends DoclingServeApi {
     @Consumes(MediaType.APPLICATION_JSON)
     @POST
     ConvertDocumentResponse convertSource(ConvertDocumentRequest request);
+
+    @Override
+    @Path("/v1/chunk/hierarchical/source")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @POST
+    ChunkDocumentResponse chunkSourceWithHierarchicalChunker(HierarchicalChunkDocumentRequest request);
+
+    @Override
+    @Path("/v1/chunk/hybrid/source")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @POST
+    ChunkDocumentResponse chunkSourceWithHybridChunker(HybridChunkDocumentRequest request);
 
     @Override
     default <T extends DoclingServeApi, B extends DoclingApiBuilder<T, B>> DoclingApiBuilder<T, B> toBuilder() {
