@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>io.quarkiverse.docling</groupId>
 		<artifactId>quarkus-docling-parent</artifactId>
-		<version>1.1.0</version>
+		<version>999-SNAPSHOT</version>
 	</parent>
 	<artifactId>quarkus-docling-integration-tests</artifactId>
 	<name>Quarkus Docling - Integration Tests</name>
