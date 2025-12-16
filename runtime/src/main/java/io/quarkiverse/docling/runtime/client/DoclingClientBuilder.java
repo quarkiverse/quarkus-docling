@@ -8,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.jboss.resteasy.reactive.client.api.LoggingScope;
 
-import ai.docling.serve.api.DoclingServeApi;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
 
@@ -17,12 +16,14 @@ public final class DoclingClientBuilder {
     private Duration timeout;
     private boolean logRequests;
     private boolean logResponses;
+    private boolean prettyPrint;
 
     public DoclingClientBuilder(DoclingRuntimeConfig config) {
         baseUrl(config.baseUrl());
         timeout(config.timeout());
         logRequests(config.logRequests());
         logResponses(config.logResponses());
+        prettyPrint(config.prettyPrint());
     }
 
     public DoclingClientBuilder baseUrl(String baseUrl) {
@@ -45,7 +46,12 @@ public final class DoclingClientBuilder {
         return this;
     }
 
-    public DoclingServeApi build() {
+    public DoclingClientBuilder prettyPrint(boolean prettyPrint) {
+        this.prettyPrint = prettyPrint;
+        return this;
+    }
+
+    public QuarkusDoclingServeClient build() {
         if ((baseUrl == null) || baseUrl.trim().isBlank()) {
             throw new IllegalArgumentException(DoclingRuntimeConfig.BASE_URL_KEY + " cannot be null or empty");
         }
@@ -61,7 +67,7 @@ public final class DoclingClientBuilder {
             if (logRequests || logResponses) {
                 restApiBuilder
                         .loggingScope(LoggingScope.REQUEST_RESPONSE)
-                        .clientLogger(new DoclingClientLogger(logRequests, logResponses));
+                        .clientLogger(new DoclingClientLogger(logRequests, logResponses, prettyPrint));
             }
 
             return restApiBuilder.build(QuarkusDoclingServeClient.class);

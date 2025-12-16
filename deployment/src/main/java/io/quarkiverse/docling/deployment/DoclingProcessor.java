@@ -8,6 +8,7 @@ import org.jboss.jandex.DotName;
 import ai.docling.serve.api.DoclingServeApi;
 import io.quarkiverse.docling.runtime.DoclingRecorder;
 import io.quarkiverse.docling.runtime.client.DoclingService;
+import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeClient;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
@@ -17,6 +18,7 @@ import io.quarkus.deployment.builditem.FeatureBuildItem;
 
 class DoclingProcessor {
     private static final String FEATURE = "docling";
+    private static final DotName QUARKUS_DOCLING_SERVE_CLIENT = DotName.createSimple(QuarkusDoclingServeClient.class);
     private static final DotName DOCLING_SERVE_API = DotName.createSimple(DoclingServeApi.class);
     private static final DotName DOCLING_SERVICE = DotName.createSimple(DoclingService.class);
 
@@ -30,11 +32,21 @@ class DoclingProcessor {
     void generateDoclingBeans(DoclingRecorder recorder, BuildProducer<SyntheticBeanBuildItem> beanProducer) {
         beanProducer.produce(
                 SyntheticBeanBuildItem
+                        .configure(QUARKUS_DOCLING_SERVE_CLIENT)
+                        .setRuntimeInit()
+                        .defaultBean()
+                        .scope(ApplicationScoped.class)
+                        .supplier(recorder.doclingServeClient())
+                        .done());
+
+        beanProducer.produce(
+                SyntheticBeanBuildItem
                         .configure(DOCLING_SERVE_API)
                         .setRuntimeInit()
                         .defaultBean()
                         .scope(ApplicationScoped.class)
-                        .supplier(recorder.doclingServeApi())
+                        .createWith(recorder.doclingServeApi())
+                        .addInjectionPoint(ClassType.create(QUARKUS_DOCLING_SERVE_CLIENT))
                         .done());
 
         beanProducer.produce(

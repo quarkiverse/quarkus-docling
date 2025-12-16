@@ -26,7 +26,7 @@ dependencies {
 
 == Usage
 
-This is still a work in process. Currently, you simply inject the `ai.docling.api.serve.DoclingServeAPI` client and use its methods:
+This is still a work in process. Currently, you simply inject the `ai.docling.serve.api.DoclingServeApi` client and use its methods:
 
 [source,java]
 ----
@@ -34,12 +34,20 @@ This is still a work in process. Currently, you simply inject the `ai.docling.ap
 DoclingServeApi doclingServeApi;
 ----
 
-There's also a service class you can inject that simplifies the API a bit that can be used for simple use cases:
+There's also a service class you can inject that simplifies the API a bit that can be used for simple use cases, although its recommended to use the `DoclingServeApi` directly:
 
 [source,java]
 ----
 @Inject
 DoclingService doclingService;
+----
+
+Additionally, if you want Quarkus-specific features (i.e. async with `Uni`, etc), you can use the `io.quarkiverse.docling.runtime.client.QuarkusDoclingServeClient` bean:
+
+[source,java]
+----
+@Inject
+QuarkusDoclingServeClient quarkusDoclingServeClient;
 ----
 
 == Dev Services

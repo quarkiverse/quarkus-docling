@@ -4,10 +4,10 @@ include::./includes/attributes.adoc[]
 
 This is a Quarkus extension for the https://github.com/docling-project[Docling project]. Docling simplifies document processing, parsing diverse formats — including advanced PDF understanding — and providing seamless integrations with the gen AI ecosystem.
 
-[link=https://github.com/docling-project/docling-serve]
-image::https://github.com/docling-project/docling-serve/raw/main/docs/assets/docling-serve-pic.png[Docling Serve,width=300]
+[link=https://github.com/docling-project/docling-java]
+image::docling-java.png[Docling Java,width=300]
 
-Currently, this extension is an implementation of the [Docling Serve API](https://docling-project.github.io/docling-java/dev/docling-serve/serve-api/) provided by [Docling Java](https://docling-project.github.io/docling-java) using a [Quarkus REST client](https://quarkus.io/guides/rest-client).
+Currently, this extension is an implementation of the https://docling-project.github.io/docling-java/current/docling-serve/serve-api[Docling Serve API] provided by https://docling-project.github.io/docling-java[Docling Java] using a https://quarkus.io/guides/rest-client[Quarkus REST client].
 
 The eventual goal is to unify the https://docling-project.github.io/docling/concepts/docling_document[DoclingDocument] format with https://docs.langchain4j.dev/tutorials/rag#document[LangChain4j's `Document` abstraction] so that Docling can be used in a LangChain4j RAG pipeline for ingesting data.
 
@@ -22,3 +22,7 @@ The eventual goal is to unify the https://docling-project.github.io/docling/conc
 * 🔍 Extensive OCR support for scanned PDFs and images
 * 🥚 Support of several Visual Language Models https://huggingface.co/ds4sd/SmolDocling-256M-preview[SmolDocling]
 * 💻 Simple and convenient CLI
+
+== What's new
+
+* See https://docling-project.github.io/docling-java/current/whats-new[what's new in Docling Java] to see what's new in the https://github.com/docling-project/docling-java[upstream Docling Java project].

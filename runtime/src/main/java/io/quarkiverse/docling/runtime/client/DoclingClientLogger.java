@@ -3,6 +3,8 @@ package io.quarkiverse.docling.runtime.client;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.StreamSupport.stream;
 
+import jakarta.ws.rs.core.HttpHeaders;
+
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.client.api.ClientLogger;
 
@@ -17,10 +19,12 @@ public final class DoclingClientLogger implements ClientLogger {
 
     private final boolean logRequests;
     private final boolean logResponses;
+    private final boolean prettyPrint;
 
-    public DoclingClientLogger(boolean logRequests, boolean logResponses) {
+    public DoclingClientLogger(boolean logRequests, boolean logResponses, boolean prettyPrint) {
         this.logRequests = logRequests;
         this.logResponses = logResponses;
+        this.prettyPrint = prettyPrint;
     }
 
     @Override
@@ -58,12 +62,36 @@ public final class DoclingClientLogger implements ClientLogger {
     }
 
     private String bodyToString(Buffer body) {
-        return (body != null) ? body.toString() : "";
+        if (body == null) {
+            return "";
+        }
+
+        return this.prettyPrint ? body.toJsonObject().encodePrettily() : body.toString();
     }
 
     private String inOneLine(MultiMap headers) {
         return stream(headers.spliterator(), false)
-                .map(header -> "[%s: %s]".formatted(header.getKey(), header.getValue()))
+                .map(header -> "[%s: %s]".formatted(header.getKey(),
+                        shouldMaskHeaderValue(header.getKey()) ? maskHeaderValue(header.getValue()) : header.getValue()))
                 .collect(joining(", "));
+    }
+
+    private static boolean shouldMaskHeaderValue(String headerName) {
+        return HttpHeaders.AUTHORIZATION.equals(headerName) ||
+                ApiMetadata.API_KEY_HEADER_NAME.equals(headerName);
+    }
+
+    private static String maskHeaderValue(String apiKeyHeaderValue) {
+        try {
+            if (apiKeyHeaderValue.length() <= 4) {
+                return apiKeyHeaderValue;
+            }
+
+            return apiKeyHeaderValue.substring(0, 2)
+                    + "..."
+                    + apiKeyHeaderValue.substring(apiKeyHeaderValue.length() - 2);
+        } catch (Exception e) {
+            return "Failed to mask the value.";
+        }
     }
 }

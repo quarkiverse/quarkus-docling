@@ -10,6 +10,12 @@ import io.smallrye.config.WithDefault;
 @ConfigGroup
 public interface DoclingDevServicesConfig extends DoclingServeContainerConfig {
     /**
+     * The default API key used for authentication or integration with external services when no other
+     * key is configured or provided. This serves as a placeholder or fallback value.
+     */
+    String DEFAULT_API_KEY = "default-api-key";
+
+    /**
      * If DevServices has been explicitly enabled or disabled. DevServices are generally enabled
      * by default, unless there is an existing configuration present.
      * <p>
@@ -52,6 +58,15 @@ public interface DoclingDevServicesConfig extends DoclingServeContainerConfig {
     @Override
     @WithDefault("${quarkus.devservices.timeout:PT1M}")
     Duration startupTimeout();
+
+    /**
+     * Retrieves the API key used for authentication or integration with external services.
+     *
+     * @return the API key as a {@link String}, or {@code null} if no API key is configured.
+     */
+    @Override
+    @WithDefault(DEFAULT_API_KEY)
+    String apiKey();
 
     @Override
     default Builder toBuilder() {
