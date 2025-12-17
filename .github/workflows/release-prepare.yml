@@ -12,8 +12,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  reclaim-disk-space:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Reclaim disk space
+        working-directory: .github
+        shell: bash
+        run: scripts/ci-reclaim-disk-space.sh
+
   prepare-release:
     name: Prepare Release
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true}}
+    needs: reclaim-disk-space
     uses: quarkiverse/.github/.github/workflows/prepare-release.yml@main
     secrets: inherit
