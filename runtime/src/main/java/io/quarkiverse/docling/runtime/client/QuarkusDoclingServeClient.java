@@ -1,6 +1,17 @@
 package io.quarkiverse.docling.runtime.client;
 
+import java.net.URI;
+
+import jakarta.ws.rs.ClientErrorException;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.ServerErrorException;
+import jakarta.ws.rs.WebApplicationException;
+import jakarta.ws.rs.core.Response;
+
+import io.quarkus.rest.client.reactive.ClientExceptionMapper;
+
+import ai.docling.serve.api.validation.ValidationError;
+import ai.docling.serve.api.validation.ValidationException;
 
 /**
  * A Quarkus REST Client interface for interacting with the Docling Serve API.
@@ -15,4 +26,33 @@ public interface QuarkusDoclingServeClient
         extends QuarkusDoclingServeHealthApi, QuarkusDoclingServeTaskApi, QuarkusDoclingServeConvertApi,
         QuarkusDoclingServeClearApi, QuarkusDoclingServeChunkApi {
 
+    @ClientExceptionMapper
+    static RuntimeException toException(Response response, URI uri) {
+        var statusCode = response.getStatus();
+        var cause = createException(response);
+
+        if (statusCode == 422) {
+            var msg = "An error occurred while making request to %s".formatted(uri.toString());
+
+            if (response.hasEntity()) {
+                return new ValidationException(response.readEntity(ValidationError.class), cause, msg);
+            } else {
+                return new ValidationException(null, cause, msg);
+            }
+        }
+
+        return cause;
+    }
+
+    private static WebApplicationException createException(Response response) {
+        var statusCode = response.getStatus();
+
+        if (statusCode >= 500) {
+            return new ServerErrorException(response);
+        } else if (statusCode >= 400) {
+            return new ClientErrorException(response);
+        }
+
+        return new WebApplicationException(response);
+    }
 }
