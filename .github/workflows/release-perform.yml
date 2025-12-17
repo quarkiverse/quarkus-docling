@@ -19,18 +19,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-jobs:
-  reclaim-disk-space:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Reclaim disk space
-        working-directory: .github
-        shell: bash
-        run: scripts/ci-reclaim-disk-space.sh
-        
+jobs:        
   perform-release:
     name: Perform Release
-    needs: reclaim-disk-space
     uses: quarkiverse/.github/.github/workflows/perform-release.yml@main
     secrets: inherit
     with:
