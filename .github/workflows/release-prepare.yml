@@ -17,3 +17,5 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.merged == true}}
     uses: quarkiverse/.github/.github/workflows/prepare-release.yml@main
     secrets: inherit
+    with:
+      skip_tests: true
