@@ -16,10 +16,6 @@ import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.test.junit.QuarkusTest;
-
-import io.smallrye.mutiny.Uni;
-
 import ai.docling.core.DoclingDocument;
 import ai.docling.core.DoclingDocument.DocItemLabel;
 import ai.docling.serve.api.DoclingServeApi;
@@ -44,6 +40,8 @@ import ai.docling.serve.api.validation.ValidationError;
 import ai.docling.serve.api.validation.ValidationErrorContext;
 import ai.docling.serve.api.validation.ValidationErrorDetail;
 import ai.docling.serve.api.validation.ValidationException;
+import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Uni;
 
 @QuarkusTest
 class DoclingServeApiTests {

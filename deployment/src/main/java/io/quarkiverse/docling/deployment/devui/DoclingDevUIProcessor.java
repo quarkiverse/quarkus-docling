@@ -30,6 +30,12 @@ class DoclingDevUIProcessor {
                             Page.externalPageBuilder("Docling UI")
                                     .url(uiUrl)
                                     .isHtmlContent()));
+
+            Optional.ofNullable(config.get(DoclingContainer.CONFIG_DOCLING_API_SCALAR_DOC))
+                    .ifPresent(scalarUrl -> card.addPage(
+                            Page.externalPageBuilder("Scalar UI")
+                                    .url(scalarUrl)
+                                    .isHtmlContent()));
         }
 
         return card;
