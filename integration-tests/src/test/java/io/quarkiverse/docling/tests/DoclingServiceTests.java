@@ -20,7 +20,7 @@ import io.quarkiverse.docling.runtime.client.DoclingService;
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
-public class DoclingTests {
+class DoclingServiceTests {
     @Inject
     DoclingService doclingService;
 

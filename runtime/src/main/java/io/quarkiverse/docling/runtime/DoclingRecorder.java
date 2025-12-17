@@ -6,6 +6,8 @@ import java.util.function.Supplier;
 import ai.docling.serve.api.DoclingServeApi;
 import io.quarkiverse.docling.runtime.client.DoclingClientBuilder;
 import io.quarkiverse.docling.runtime.client.DoclingService;
+import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeApi;
+import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeClient;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.quarkus.arc.SyntheticCreationalContext;
 import io.quarkus.runtime.RuntimeValue;
@@ -19,11 +21,21 @@ public class DoclingRecorder {
         this.config = config;
     }
 
-    public Supplier<DoclingServeApi> doclingServeApi() {
-        return new Supplier<DoclingServeApi>() {
+    public Supplier<QuarkusDoclingServeClient> doclingServeClient() {
+        return new Supplier<QuarkusDoclingServeClient>() {
             @Override
-            public DoclingServeApi get() {
+            public QuarkusDoclingServeClient get() {
                 return new DoclingClientBuilder(config.getValue()).build();
+            }
+        };
+    }
+
+    public Function<SyntheticCreationalContext<DoclingServeApi>, DoclingServeApi> doclingServeApi() {
+        return new Function<SyntheticCreationalContext<DoclingServeApi>, DoclingServeApi>() {
+            @Override
+            public DoclingServeApi apply(SyntheticCreationalContext<DoclingServeApi> context) {
+                return new QuarkusDoclingServeApi(context.getInjectedReference(QuarkusDoclingServeClient.class),
+                        config.getValue());
             }
         };
     }

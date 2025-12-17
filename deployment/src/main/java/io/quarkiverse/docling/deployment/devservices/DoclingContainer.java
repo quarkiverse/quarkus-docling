@@ -79,6 +79,7 @@ public class DoclingContainer extends DoclingServeContainer {
         exposed.put(CONFIG_DOCLING_API_ENDPOINT, apiEndpoint);
         exposed.put(CONFIG_DOCLING_API_DOC, "%s/docs".formatted(apiEndpoint));
         exposed.put(DoclingRuntimeConfig.BASE_URL_KEY, apiEndpoint);
+        exposed.put(DoclingRuntimeConfig.API_KEY_KEY, config.apiKey());
 
         if (this.config.enableUi()) {
             exposed.put(CONFIG_DOCLING_UI, "%s/ui".formatted(apiEndpoint));

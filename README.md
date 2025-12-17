@@ -9,8 +9,8 @@
 This is a Quarkus extension for the [Docling project](https://github.com/docling-project). Docling simplifies document processing, parsing diverse formats — including advanced PDF understanding — and providing seamless integrations with the gen AI ecosystem.
 
 <p align="center">
-  <a href="https://github.com/docling-project/docling-serve">
-    <img loading="lazy" alt="Docling" src="https://github.com/docling-project/docling-serve/raw/main/docs/assets/docling-serve-pic.png" width="30%"/>
+  <a href="https://github.com/docling-project/docling-java">
+    <img loading="lazy" alt="Docling" src="https://raw.githubusercontent.com/docling-project/docling-java/main/docs/src/doc/docs/assets/img/docling-java.png" width="30%"/>
   </a>
 </p>
 
