@@ -36,6 +36,11 @@ public class DoclingContainer extends DoclingServeContainer {
     public static final String CONFIG_DOCLING_API_DOC = DoclingDevServicesProcessor.FEATURE + ".docling.api.doc";
 
     /**
+     * Configuration key for the Scalar documentation endpoint used by the Docling dev service
+     */
+    public static final String CONFIG_DOCLING_API_SCALAR_DOC = DoclingDevServicesProcessor.FEATURE + ".docling.api.scalar.doc";
+
+    /**
      * Configuration key for the UI endpoint used by the Docling dev service
      */
     public static final String CONFIG_DOCLING_UI = DoclingDevServicesProcessor.FEATURE + ".docling.ui";
@@ -78,6 +83,7 @@ public class DoclingContainer extends DoclingServeContainer {
         exposed.put(CONFIG_DOCLING_HTTP_SERVER, host);
         exposed.put(CONFIG_DOCLING_API_ENDPOINT, apiEndpoint);
         exposed.put(CONFIG_DOCLING_API_DOC, "%s/docs".formatted(apiEndpoint));
+        exposed.put(CONFIG_DOCLING_API_SCALAR_DOC, "%s/scalar".formatted(apiEndpoint));
         exposed.put(DoclingRuntimeConfig.BASE_URL_KEY, apiEndpoint);
         exposed.put(DoclingRuntimeConfig.API_KEY_KEY, config.apiKey());
 
