@@ -8,10 +8,9 @@ import jakarta.ws.rs.ServerErrorException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
-import io.quarkus.rest.client.reactive.ClientExceptionMapper;
-
 import ai.docling.serve.api.validation.ValidationError;
 import ai.docling.serve.api.validation.ValidationException;
+import io.quarkus.rest.client.reactive.ClientExceptionMapper;
 
 /**
  * A Quarkus REST Client interface for interacting with the Docling Serve API.
