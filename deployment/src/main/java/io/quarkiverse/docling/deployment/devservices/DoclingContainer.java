@@ -1,19 +1,20 @@
 package io.quarkiverse.docling.deployment.devservices;
 
+import static java.util.stream.Collectors.toMap;
+
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
-
-import org.jboss.logging.Logger;
+import java.util.function.Function;
 
 import ai.docling.testcontainers.serve.DoclingServeContainer;
 import io.quarkiverse.docling.deployment.devservices.config.DoclingDevServicesConfig;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
+import io.quarkus.deployment.builditem.Startable;
 import io.quarkus.devservices.common.ConfigureUtil;
 
-public class DoclingContainer extends DoclingServeContainer {
-    private static final Logger LOG = Logger.getLogger(DoclingContainer.class);
-
+public class DoclingContainer extends DoclingServeContainer implements Startable {
     /**
      * Configuration key for the port number used by the Docling dev service
      */
@@ -68,16 +69,28 @@ public class DoclingContainer extends DoclingServeContainer {
         }
     }
 
-    /**
-     * Info about the DevService.
-     *
-     * @return the map of as running configuration of the dev service
-     */
-    public Map<String, String> getExposedConfig() {
-        var host = getHost();
-        var port = getPort();
+    static Map<String, Function<DoclingContainer, String>> getExposedConfig(DoclingDevServicesConfig config) {
+        var exposed = new HashMap<String, Function<DoclingContainer, String>>(7);
+        Function<DoclingContainer, String> apiEndpointFunction = DoclingContainer::getApiUrl;
+
+        exposed.put(CONFIG_DOCLING_PORT, c -> Objects.toString(c.getPort()));
+        exposed.put(CONFIG_DOCLING_HTTP_SERVER, c -> c.getHost());
+        exposed.put(CONFIG_DOCLING_API_ENDPOINT, apiEndpointFunction);
+        exposed.put(CONFIG_DOCLING_API_DOC, c -> "%s/docs".formatted(apiEndpointFunction.apply(c)));
+        exposed.put(CONFIG_DOCLING_API_SCALAR_DOC, c -> "%s/scalar".formatted(apiEndpointFunction.apply(c)));
+        exposed.put(DoclingRuntimeConfig.BASE_URL_KEY, apiEndpointFunction);
+        exposed.put(DoclingRuntimeConfig.API_KEY_KEY, c -> config.apiKey());
+
+        if (config.enableUi()) {
+            exposed.put(CONFIG_DOCLING_UI, c -> "%s/ui".formatted(apiEndpointFunction.apply(c)));
+        }
+
+        return exposed;
+    }
+
+    static Map<String, String> getExposedConfig(DoclingDevServicesConfig config, String host, int port) {
         var apiEndpoint = "http://%s:%d".formatted(host, port);
-        var exposed = new HashMap<String, String>(6);
+        var exposed = new HashMap<String, String>(7);
 
         exposed.put(CONFIG_DOCLING_PORT, Objects.toString(port));
         exposed.put(CONFIG_DOCLING_HTTP_SERVER, host);
@@ -87,9 +100,22 @@ public class DoclingContainer extends DoclingServeContainer {
         exposed.put(DoclingRuntimeConfig.BASE_URL_KEY, apiEndpoint);
         exposed.put(DoclingRuntimeConfig.API_KEY_KEY, config.apiKey());
 
-        if (this.config.enableUi()) {
+        if (config.enableUi()) {
             exposed.put(CONFIG_DOCLING_UI, "%s/ui".formatted(apiEndpoint));
         }
+
+        return exposed;
+    }
+
+    /**
+     * Info about the DevService.
+     *
+     * @return the map of as running configuration of the dev service
+     */
+    public Map<String, String> getExposedConfig() {
+        var exposed = new HashMap<>(getExposedConfig(this.config).entrySet()
+                .stream()
+                .collect(toMap(Entry::getKey, e -> e.getValue().apply(this))));
 
         exposed.putAll(getEnvMap());
 
@@ -99,5 +125,15 @@ public class DoclingContainer extends DoclingServeContainer {
     @Override
     public String getHost() {
         return ((this.hostName != null) && !this.hostName.isEmpty()) ? this.hostName : super.getHost();
+    }
+
+    @Override
+    public String getConnectionInfo() {
+        return getApiUrl();
+    }
+
+    @Override
+    public void close() {
+        super.close();
     }
 }
