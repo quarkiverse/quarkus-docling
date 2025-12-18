@@ -68,8 +68,36 @@ public interface DoclingDevServicesConfig extends DoclingServeContainerConfig {
     @WithDefault(DEFAULT_API_KEY)
     String apiKey();
 
+    /**
+     * Indicates if the Docling server managed by Quarkus Dev Services is shared.
+     * When shared, Quarkus looks for running containers using label-based service discovery.
+     * If a matching container is found, it is used, and so a second one is not started.
+     * Otherwise, Dev Services for Docling starts a new container.
+     * <p>
+     * The discovery uses the {@code quarkus-dev-service-docling} label.
+     * The value is configured using the {@code service-name} property.
+     * <p>
+     * Container sharing is only used in dev mode.
+     */
+    @WithDefault("true")
+    boolean shared();
+
+    /**
+     * The value of the {@code quarkus-dev-service-docling} label attached to the started container.
+     * This property is used when {@code shared} is set to {@code true}.
+     * In this case, before starting a container, Dev Services for Docling looks for a container with the
+     * {@code quarkus-dev-service-docling} label
+     * set to the configured value. If found, it will use this container instead of starting a new one. Otherwise, it
+     * starts a new container with the {@code quarkus-dev-service-docling} label set to the specified value.
+     * <p>
+     * This property is used when you need multiple shared Docling servers.
+     */
+    @WithDefault("docling")
+    String serviceName();
+
     @Override
     default Builder toBuilder() {
-        throw new UnsupportedOperationException("This operation is not supported by the DoclingDevServicesConfig");
+        return null;
+        //        throw new UnsupportedOperationException("This operation is not supported by the DoclingDevServicesConfig");
     }
 }
