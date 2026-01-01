@@ -10,6 +10,7 @@ import java.util.Base64;
 import java.util.Optional;
 
 import ai.docling.serve.api.DoclingServeApi;
+import ai.docling.serve.api.chunk.request.ChunkType;
 import ai.docling.serve.api.chunk.request.HierarchicalChunkDocumentRequest;
 import ai.docling.serve.api.chunk.request.HybridChunkDocumentRequest;
 import ai.docling.serve.api.chunk.response.ChunkDocumentResponse;
@@ -26,20 +27,6 @@ import ai.docling.serve.api.convert.response.ConvertDocumentResponse;
  */
 public class DoclingService {
     private final DoclingServeApi doclingServeApi;
-
-    /**
-     * Defines the types of document chunking strategies available for processing documents.
-     *
-     * The chunking strategies determine how a document is segmented into smaller parts:
-     * - HIERARCHICAL: A structured approach that organizes the document into a tree-like
-     * hierarchy of nested chunks based on the document's logical structure.
-     * - HYBRID: A mixed approach that combines multiple strategies for chunking
-     * to suit specific processing or output requirements.
-     */
-    public enum ChunkType {
-        HIERARCHICAL,
-        HYBRID
-    }
 
     /**
      * Enumerates the possible statuses with an optional associated string representation.
@@ -312,11 +299,11 @@ public class DoclingService {
      * @param filename the name of the input file. This is used to infer the file type of the document.
      * @param outputFormat the desired output format for the chunked document.
      * @param chunkType the type of chunking strategy to apply. It determines how the document will be segmented.
-     *        Supported values are defined in {@code DoclingService.ChunkType}.
+     *        Supported values are defined in {@code ChunkType}.
      * @return the response containing the result of the chunking operation.
      */
     public ChunkDocumentResponse chunkFromBase64(String base64Content, String filename, OutputFormat outputFormat,
-            DoclingService.ChunkType chunkType) {
+            ChunkType chunkType) {
         var options = ConvertDocumentOptions.builder()
                 .toFormat(outputFormat)
                 .build();

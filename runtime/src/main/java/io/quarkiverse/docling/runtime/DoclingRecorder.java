@@ -7,6 +7,7 @@ import ai.docling.serve.api.DoclingServeApi;
 import io.quarkiverse.docling.runtime.client.DoclingClientBuilder;
 import io.quarkiverse.docling.runtime.client.DoclingService;
 import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeApi;
+import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeApi.QuarkusDoclingServeApiBuilder;
 import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeClient;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.quarkus.arc.SyntheticCreationalContext;
@@ -34,8 +35,10 @@ public class DoclingRecorder {
         return new Function<SyntheticCreationalContext<DoclingServeApi>, DoclingServeApi>() {
             @Override
             public DoclingServeApi apply(SyntheticCreationalContext<DoclingServeApi> context) {
-                return new QuarkusDoclingServeApi(context.getInjectedReference(QuarkusDoclingServeClient.class),
-                        config.getValue());
+                return DoclingServeApi.<QuarkusDoclingServeApi, QuarkusDoclingServeApiBuilder> builder()
+                        .client(context.getInjectedReference(QuarkusDoclingServeClient.class))
+                        .config(config.getValue())
+                        .build();
             }
         };
     }

@@ -1,5 +1,7 @@
 package io.quarkiverse.docling.runtime.client;
 
+import java.net.URI;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Supplier;
@@ -48,12 +50,16 @@ public class QuarkusDoclingServeApi implements DoclingServeApi {
         CONVERT
     }
 
-    public QuarkusDoclingServeApi(QuarkusDoclingServeClient client, DoclingRuntimeConfig config) {
-        this.client = ValidationUtils.ensureNotNull(client, "client");
-        this.config = ValidationUtils.ensureNotNull(config, "config");
+    private QuarkusDoclingServeApi(QuarkusDoclingServeApiBuilder builder) {
+        this.client = ValidationUtils.ensureNotNull(builder.client, "client");
+        this.config = ValidationUtils.ensureNotNull(builder.config, "config");
         this.apiMetadata = ApiMetadata.builder()
                 .apiKey(this.config.apiKey().orElse(null))
                 .build();
+    }
+
+    public static QuarkusDoclingServeApiBuilder builder() {
+        return new QuarkusDoclingServeApiBuilder();
     }
 
     @Override
@@ -193,5 +199,68 @@ public class QuarkusDoclingServeApi implements DoclingServeApi {
     @Override
     public <T extends DoclingServeApi, B extends DoclingApiBuilder<T, B>> DoclingApiBuilder<T, B> toBuilder() {
         throw new UnsupportedOperationException("This operation is not supported by the QuarkusDoclingServeClient");
+    }
+
+    public static class QuarkusDoclingServeApiBuilder
+            implements DoclingApiBuilder<QuarkusDoclingServeApi, QuarkusDoclingServeApiBuilder> {
+        private DoclingRuntimeConfig config;
+        private QuarkusDoclingServeClient client;
+
+        private QuarkusDoclingServeApiBuilder() {
+        }
+
+        public QuarkusDoclingServeApiBuilder config(DoclingRuntimeConfig config) {
+            this.config = ValidationUtils.ensureNotNull(config, "config");
+            return this;
+        }
+
+        public QuarkusDoclingServeApiBuilder client(QuarkusDoclingServeClient client) {
+            this.client = ValidationUtils.ensureNotNull(client, "client");
+            return this;
+        }
+
+        public QuarkusDoclingServeApiBuilder timeout(Duration timeout) {
+            throw new UnsupportedOperationException("This operation is not supported by the QuarkusDoclingServeClient");
+        }
+
+        @Override
+        public QuarkusDoclingServeApiBuilder baseUrl(URI baseUrl) {
+            throw new UnsupportedOperationException("This operation is not supported by the QuarkusDoclingServeClient");
+        }
+
+        @Override
+        public QuarkusDoclingServeApiBuilder apiKey(String apiKey) {
+            throw new UnsupportedOperationException("This operation is not supported by the QuarkusDoclingServeClient");
+        }
+
+        @Override
+        public QuarkusDoclingServeApiBuilder logRequests(boolean logRequests) {
+            throw new UnsupportedOperationException("This operation is not supported by the QuarkusDoclingServeClient");
+        }
+
+        @Override
+        public QuarkusDoclingServeApiBuilder logResponses(boolean logResponses) {
+            throw new UnsupportedOperationException("This operation is not supported by the QuarkusDoclingServeClient");
+        }
+
+        @Override
+        public QuarkusDoclingServeApiBuilder prettyPrint(boolean prettyPrint) {
+            throw new UnsupportedOperationException("This operation is not supported by the QuarkusDoclingServeClient");
+        }
+
+        @Override
+        public QuarkusDoclingServeApiBuilder asyncPollInterval(Duration asyncPollInterval) {
+            throw new UnsupportedOperationException("This operation is not supported by the QuarkusDoclingServeClient");
+        }
+
+        @Override
+        public QuarkusDoclingServeApiBuilder asyncTimeout(Duration asyncTimeout) {
+            throw new UnsupportedOperationException("This operation is not supported by the QuarkusDoclingServeClient");
+        }
+
+        @Override
+        public QuarkusDoclingServeApi build() {
+            return new QuarkusDoclingServeApi(this);
+        }
     }
 }
