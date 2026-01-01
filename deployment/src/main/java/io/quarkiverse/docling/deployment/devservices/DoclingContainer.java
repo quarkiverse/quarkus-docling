@@ -6,15 +6,22 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Function;
 
-import ai.docling.testcontainers.serve.DoclingServeContainer;
-import io.quarkiverse.docling.deployment.devservices.config.DoclingDevServicesConfig;
-import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
+import org.jboss.logging.Logger;
+
 import io.quarkus.deployment.builditem.Startable;
 import io.quarkus.devservices.common.ConfigureUtil;
 
+import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
+
+import ai.docling.testcontainers.serve.DoclingServeContainer;
+import ai.docling.testcontainers.serve.config.DoclingServeContainerConfig;
+
 public class DoclingContainer extends DoclingServeContainer implements Startable {
+    private static final Logger LOG = Logger.getLogger(DoclingContainer.class);
+
     /**
      * Configuration key for the port number used by the Docling dev service
      */
@@ -52,9 +59,9 @@ public class DoclingContainer extends DoclingServeContainer implements Startable
      * The dynamic host name determined from TestContainers
      */
     private String hostName;
-    private final DoclingDevServicesConfig config;
+    private final DoclingServeContainerConfig config;
 
-    DoclingContainer(DoclingDevServicesConfig config, boolean useSharedNetwork) {
+    DoclingContainer(DoclingServeContainerConfig config, boolean useSharedNetwork) {
         super(config);
         this.config = config;
         this.useSharedNetwork = useSharedNetwork;
@@ -69,7 +76,7 @@ public class DoclingContainer extends DoclingServeContainer implements Startable
         }
     }
 
-    static Map<String, Function<DoclingContainer, String>> getExposedConfig(DoclingDevServicesConfig config) {
+    static Map<String, Function<DoclingContainer, String>> getExposedConfig(DoclingServeContainerConfig config) {
         var exposed = new HashMap<String, Function<DoclingContainer, String>>(7);
         Function<DoclingContainer, String> apiEndpointFunction = DoclingContainer::getApiUrl;
 
@@ -79,16 +86,31 @@ public class DoclingContainer extends DoclingServeContainer implements Startable
         exposed.put(CONFIG_DOCLING_API_DOC, c -> "%s/docs".formatted(apiEndpointFunction.apply(c)));
         exposed.put(CONFIG_DOCLING_API_SCALAR_DOC, c -> "%s/scalar".formatted(apiEndpointFunction.apply(c)));
         exposed.put(DoclingRuntimeConfig.BASE_URL_KEY, apiEndpointFunction);
-        exposed.put(DoclingRuntimeConfig.API_KEY_KEY, c -> config.apiKey());
+
+        Optional.ofNullable(config.apiKey())
+                .ifPresent(apiKey -> exposed.put(DoclingRuntimeConfig.API_KEY_KEY, c -> apiKey));
 
         if (config.enableUi()) {
             exposed.put(CONFIG_DOCLING_UI, c -> "%s/ui".formatted(apiEndpointFunction.apply(c)));
         }
 
-        return exposed;
+        return exposed.entrySet()
+                .stream()
+                .collect(toMap(Entry::getKey, entry -> entry.getValue().andThen(s -> {
+                    LOG.infof("%s=%s", entry.getKey(), s);
+//                    throw new RuntimeException();
+                  return s;
+                })));
+
+        //        return exposed;
     }
 
-    static Map<String, String> getExposedConfig(DoclingDevServicesConfig config, String host, int port) {
+    public static Map<String, String> getExposedConfig(DoclingServeContainerConfig config, String apiUrl) {
+        var parts = apiUrl.split(":");
+        return getExposedConfig(config, parts[0], Integer.parseInt(parts[1]));
+    }
+
+    static Map<String, String> getExposedConfig(DoclingServeContainerConfig config, String host, int port) {
         var apiEndpoint = "http://%s:%d".formatted(host, port);
         var exposed = new HashMap<String, String>(7);
 
@@ -98,7 +120,9 @@ public class DoclingContainer extends DoclingServeContainer implements Startable
         exposed.put(CONFIG_DOCLING_API_DOC, "%s/docs".formatted(apiEndpoint));
         exposed.put(CONFIG_DOCLING_API_SCALAR_DOC, "%s/scalar".formatted(apiEndpoint));
         exposed.put(DoclingRuntimeConfig.BASE_URL_KEY, apiEndpoint);
-        exposed.put(DoclingRuntimeConfig.API_KEY_KEY, config.apiKey());
+
+        Optional.ofNullable(config.apiKey())
+                .ifPresent(apiKey -> exposed.put(DoclingRuntimeConfig.API_KEY_KEY, apiKey));
 
         if (config.enableUi()) {
             exposed.put(CONFIG_DOCLING_UI, "%s/ui".formatted(apiEndpoint));

@@ -66,7 +66,6 @@ public class DoclingDevServicesProcessor {
                     launchMode.getLaunchMode(), useSharedNetwork);
 
             devServicesResult.produce(devServicesResultBuildItem);
-            LOG.info("produced DevServicesResultBuildItem");
         }
     }
 
@@ -75,34 +74,44 @@ public class DoclingDevServicesProcessor {
             LaunchMode launchMode,
             boolean useSharedNetwork) {
 
+        var doclingServeContainerConfig = devServicesConfig.toDoclingServeContainerConfig();
+
         return DOCLING_CONTAINER_LOCATOR
                 .locateContainer(devServicesConfig.serviceName(), devServicesConfig.shared(), launchMode)
                 .or(() -> ComposeLocator.locateContainer(composeProjectBuildItem,
                         List.of(devServicesConfig.image()), DoclingServeContainer.DEFAULT_DOCLING_PORT, launchMode,
                         useSharedNetwork))
-                .map(containerAddress -> DevServicesResultBuildItem.discovered()
-                        .name(PROVIDER)
-                        .containerId(containerAddress.getId())
-                        .description("Docling Serve")
-                        .config(DoclingContainer.getExposedConfig(devServicesConfig, containerAddress.getHost(),
-                                containerAddress.getPort()))
-                        .build())
+                .map(containerAddress -> {
+                    var config = DoclingContainer.getExposedConfig(doclingServeContainerConfig, containerAddress.getHost(),
+                            containerAddress.getPort());
+
+                    return DevServicesResultBuildItem.discovered()
+                            .name(PROVIDER)
+                            .containerId(containerAddress.getId())
+                            .description("Docling Serve")
+                            .config(config)
+                            .build();
+                })
                 .orElseGet(() -> DevServicesResultBuildItem.owned()
                         .name(PROVIDER)
                         .description("Docling Serve")
                         .serviceName(devServicesConfig.serviceName())
-                        .serviceConfig(devServicesConfig)
-                        .startable(() -> new DoclingContainer(devServicesConfig, useSharedNetwork))
-                        .postStartHook(s -> logDevServiceStarted(s.getConnectionInfo()))
-                        .configProvider(DoclingContainer.getExposedConfig(devServicesConfig))
+                        .serviceConfig(doclingServeContainerConfig)
+                        .startable(() -> new DoclingContainer(doclingServeContainerConfig, useSharedNetwork))
+                        .postStartHook(DoclingDevServicesProcessor::devServiceStarted)
+                        .configProvider(DoclingContainer.getExposedConfig(doclingServeContainerConfig))
                         .build());
     }
 
-    private static void logDevServiceStarted(String connectionInfo) {
-        LOG.infof("Dev Services for Docling started. Other applications in dev mode will find the " +
-                "it automatically. For Quarkus application in production mode, you can connect to " +
-                "this coordinator by starting you application with -D%s=%s\n", DoclingRuntimeConfig.BASE_URL_KEY,
-                connectionInfo);
+    private static void devServiceStarted(DoclingContainer container) {
+        LOG.infof(
+                """
+
+                        Dev Services for Docling started.
+                          Other applications in dev mode will find it automatically.
+                          For Quarkus applications in production mode, you can connect to this instance by starting you application with -D%s=%s
+                        """,
+                DoclingRuntimeConfig.BASE_URL_KEY, container.getConnectionInfo());
     }
 
     private static boolean doclingDevServicesDisabled(DockerStatusBuildItem dockerStatusBuildItem,
