@@ -31,9 +31,9 @@
   </issueManagement>
 
   <properties>
-    <assertj.version>3.27.6</assertj.version>
+    <assertj.version>3.27.7</assertj.version>
     <compiler-plugin.version>3.14.1</compiler-plugin.version>
-	  <docling-java.version>0.4.2</docling-java.version>
+	  <docling-java.version>0.4.3</docling-java.version>
     <maven.compiler.release>17</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
