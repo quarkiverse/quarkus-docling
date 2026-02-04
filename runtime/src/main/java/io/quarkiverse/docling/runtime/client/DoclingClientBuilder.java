@@ -8,12 +8,15 @@ import java.util.concurrent.TimeUnit;
 
 import org.jboss.resteasy.reactive.client.api.LoggingScope;
 
-import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
+
+import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 
 public final class DoclingClientBuilder {
     private String baseUrl;
     private Duration timeout;
+    private Duration connectTimeout;
+    private Duration readTimeout;
     private boolean logRequests;
     private boolean logResponses;
     private boolean prettyPrint;
@@ -24,6 +27,8 @@ public final class DoclingClientBuilder {
         logRequests(config.logRequests());
         logResponses(config.logResponses());
         prettyPrint(config.prettyPrint());
+        connectTimeout(config.connectTimeout());
+        readTimeout(config.readTimeout());
     }
 
     public DoclingClientBuilder baseUrl(String baseUrl) {
@@ -51,28 +56,44 @@ public final class DoclingClientBuilder {
         return this;
     }
 
+    public DoclingClientBuilder connectTimeout(Duration connectTimeout) {
+        this.connectTimeout = connectTimeout;
+        return this;
+    }
+
+    public DoclingClientBuilder readTimeout(Duration readTimeout) {
+        this.readTimeout = readTimeout;
+        return this;
+    }
+
     public QuarkusDoclingServeClient build() {
-        if ((baseUrl == null) || baseUrl.trim().isBlank()) {
+        if ((this.baseUrl == null) || this.baseUrl.trim().isBlank()) {
             throw new IllegalArgumentException(DoclingRuntimeConfig.BASE_URL_KEY + " cannot be null or empty");
         }
 
         var defaultTimeout = Optional.ofNullable(this.timeout).orElse(Duration.ofMinutes(1));
+        var defaultConnectTimeout = getOrDefault(this.connectTimeout, defaultTimeout);
+        var defaultReadTimeout = getOrDefault(this.readTimeout, defaultTimeout);
 
         try {
             var restApiBuilder = QuarkusRestClientBuilder.newBuilder()
-                    .baseUri(new URI(baseUrl))
-                    .connectTimeout(defaultTimeout.toSeconds(), TimeUnit.SECONDS)
-                    .readTimeout(defaultTimeout.toSeconds(), TimeUnit.SECONDS);
+                    .baseUri(new URI(this.baseUrl))
+                    .connectTimeout(defaultConnectTimeout.toSeconds(), TimeUnit.SECONDS)
+                    .readTimeout(defaultReadTimeout.toSeconds(), TimeUnit.SECONDS);
 
-            if (logRequests || logResponses) {
+            if (this.logRequests || this.logResponses) {
                 restApiBuilder
                         .loggingScope(LoggingScope.REQUEST_RESPONSE)
-                        .clientLogger(new DoclingClientLogger(logRequests, logResponses, prettyPrint));
+                        .clientLogger(new DoclingClientLogger(this.logRequests, this.logResponses, this.prettyPrint));
             }
 
             return restApiBuilder.build(QuarkusDoclingServeClient.class);
         } catch (URISyntaxException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    private static Duration getOrDefault(Duration duration, Duration defaultValue) {
+        return Optional.ofNullable(duration).orElse(defaultValue);
     }
 }

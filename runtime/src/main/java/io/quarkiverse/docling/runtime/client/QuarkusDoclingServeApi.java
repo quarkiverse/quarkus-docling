@@ -249,6 +249,16 @@ public class QuarkusDoclingServeApi implements DoclingServeApi {
         }
 
         @Override
+        public QuarkusDoclingServeApiBuilder connectTimeout(Duration connectTimeout) {
+            throw new UnsupportedOperationException("This operation is not supported by the QuarkusDoclingServeClient");
+        }
+
+        @Override
+        public QuarkusDoclingServeApiBuilder readTimeout(Duration readTimeout) {
+            throw new UnsupportedOperationException("This operation is not supported by the QuarkusDoclingServeClient");
+        }
+
+        @Override
         public QuarkusDoclingServeApiBuilder asyncPollInterval(Duration asyncPollInterval) {
             throw new UnsupportedOperationException("This operation is not supported by the QuarkusDoclingServeClient");
         }
