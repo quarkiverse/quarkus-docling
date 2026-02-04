@@ -73,4 +73,22 @@ public interface DoclingRuntimeConfig {
      * secure access to the API.
      */
     Optional<String> apiKey();
+
+    /**
+     * Timeout to establish a connection to the Docling Serve API.
+     * <p>
+     * Defaults to {@code quarkus.docling.timeout}
+     * </p>
+     */
+    @WithDefault("${quarkus.docling.timeout}")
+    Duration connectTimeout();
+
+    /**
+     * Timeout for receiving a response from the Docling Serve API.
+     * <p>
+     * Defaults to {@code quarkus.docling.timeout}
+     * </p>
+     */
+    @WithDefault("${quarkus.docling.timeout}")
+    Duration readTimeout();
 }
