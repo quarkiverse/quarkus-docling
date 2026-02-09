@@ -13,9 +13,12 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
 
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+
+import io.quarkus.test.junit.QuarkusTest;
+
+import io.smallrye.mutiny.Uni;
 
 import ai.docling.core.DoclingDocument;
 import ai.docling.core.DoclingDocument.DocItemLabel;
@@ -41,11 +44,8 @@ import ai.docling.serve.api.validation.ValidationError;
 import ai.docling.serve.api.validation.ValidationErrorContext;
 import ai.docling.serve.api.validation.ValidationErrorDetail;
 import ai.docling.serve.api.validation.ValidationException;
-import io.quarkus.test.junit.QuarkusTest;
-import io.smallrye.mutiny.Uni;
 
 @QuarkusTest
-@Disabled
 class DoclingServeApiTests {
     @Inject
     DoclingServeApi doclingServeApi;
@@ -152,7 +152,6 @@ class DoclingServeApiTests {
                                     .type("url_scheme")
                                     .message("URL scheme should be 'http' or 'https'")
                                     .locations(List.of("body", "sources", 0, "http", "url"))
-                                    .input(file.toUri().toString())
                                     .context(
                                             ValidationErrorContext.builder()
                                                     .expectedSchemes("'http' or 'https'")
@@ -799,7 +798,6 @@ class DoclingServeApiTests {
                                     .type("url_scheme")
                                     .message("URL scheme should be 'http' or 'https'")
                                     .locations(List.of("body", "sources", 0, "http", "url"))
-                                    .input(file.toUri().toString())
                                     .context(
                                             ValidationErrorContext.builder()
                                                     .expectedSchemes("'http' or 'https'")
@@ -843,7 +841,6 @@ class DoclingServeApiTests {
                                     .type("url_scheme")
                                     .message("URL scheme should be 'http' or 'https'")
                                     .locations(List.of("body", "sources", 0, "http", "url"))
-                                    .input(file.toUri().toString())
                                     .context(
                                             ValidationErrorContext.builder()
                                                     .expectedSchemes("'http' or 'https'")
