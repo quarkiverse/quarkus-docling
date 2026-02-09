@@ -26,7 +26,39 @@ defaults:
   run:
     shell: bash
 
+permissions:
+  pull-requests: write
+
 jobs:
+  native-build:
+    name: Build native on ${{ matrix.os }} - ${{ matrix.java }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest ]
+        java: [ 21, 25 ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Reclaim disk space
+        working-directory: .github
+        shell: bash
+        run: scripts/ci-reclaim-disk-space.sh
+
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: mandrel # See 'Supported distributions' for available options
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          cache: maven
+          native-image-job-reports: true
+          native-image-pr-reports: true
+          native-image-pr-reports-update-existing: true
+
+      - name: Build with Maven
+        run: ./mvnw -B formatter:validate clean install -Pnative
+
   build:
     name: Build on ${{ matrix.os }} - ${{ matrix.java }}
     strategy:
@@ -51,7 +83,4 @@ jobs:
           cache: maven
 
       - name: Build with Maven
-        run: ./mvnw -B formatter:validate install
-
-#      - name: Build with Maven (Native)
-#        run: mvn -B install -Dnative -Dquarkus.native.container-build -Dnative.surefire.skip
+        run: ./mvnw -B formatter:validate clean install
