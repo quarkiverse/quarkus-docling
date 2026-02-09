@@ -6,14 +6,12 @@ import java.nio.file.Path;
 
 import jakarta.inject.Inject;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import io.quarkus.test.junit.QuarkusTest;
 
 @QuarkusTest
-@Disabled
 class DoclingServiceTests {
     @Inject
     DoclingServiceTester doclingServiceTester;
