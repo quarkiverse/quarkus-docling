@@ -36,7 +36,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ ubuntu-latest ]
-        java: [ 17, 21, 25 ]
+        java: [ 21, 25 ]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v6
@@ -58,9 +58,6 @@ jobs:
 
       - name: Build with Maven
         run: ./mvnw -B formatter:validate clean install -Pnative
-
-      - name: Run ITs
-        run: ./mvnw -B verify -Pnative
 
   build:
     name: Build on ${{ matrix.os }} - ${{ matrix.java }}
@@ -87,9 +84,3 @@ jobs:
 
       - name: Build with Maven
         run: ./mvnw -B formatter:validate clean install
-
-      - name: Run ITs
-        run: ./mvnw -B verify
-
-#      - name: Build with Maven (Native)
-#        run: mvn -B install -Dnative -Dquarkus.native.container-build -Dnative.surefire.skip
