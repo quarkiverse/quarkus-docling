@@ -1,9 +1,9 @@
 package io.quarkiverse.docling.runtime.jackson;
 
-import io.quarkus.jackson.JacksonMixin;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import ai.docling.serve.api.validation.ValidationErrorDetail;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import io.quarkus.jackson.JacksonMixin;
 
 @JacksonMixin(ValidationErrorDetail.Builder.class)
 @JsonIgnoreProperties("input")
