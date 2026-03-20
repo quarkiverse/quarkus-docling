@@ -4,10 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
@@ -15,10 +21,6 @@ import jakarta.ws.rs.WebApplicationException;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-
-import io.quarkus.test.junit.QuarkusTest;
-
-import io.smallrye.mutiny.Uni;
 
 import ai.docling.core.DoclingDocument;
 import ai.docling.core.DoclingDocument.DocItemLabel;
@@ -34,16 +36,25 @@ import ai.docling.serve.api.clear.request.ClearResultsRequest;
 import ai.docling.serve.api.clear.response.ClearResponse;
 import ai.docling.serve.api.convert.request.ConvertDocumentRequest;
 import ai.docling.serve.api.convert.request.options.ConvertDocumentOptions;
+import ai.docling.serve.api.convert.request.options.ImageRefMode;
 import ai.docling.serve.api.convert.request.options.OutputFormat;
 import ai.docling.serve.api.convert.request.options.TableFormerMode;
 import ai.docling.serve.api.convert.request.source.HttpSource;
+import ai.docling.serve.api.convert.request.target.ZipTarget;
 import ai.docling.serve.api.convert.response.ConvertDocumentResponse;
+import ai.docling.serve.api.convert.response.InBodyConvertDocumentResponse;
+import ai.docling.serve.api.convert.response.ResponseType;
+import ai.docling.serve.api.convert.response.ZipArchiveConvertDocumentResponse;
 import ai.docling.serve.api.health.HealthCheckResponse;
 import ai.docling.serve.api.task.request.TaskStatusPollRequest;
+import ai.docling.serve.api.util.FileUtils;
 import ai.docling.serve.api.validation.ValidationError;
 import ai.docling.serve.api.validation.ValidationErrorContext;
 import ai.docling.serve.api.validation.ValidationErrorDetail;
 import ai.docling.serve.api.validation.ValidationException;
+import io.quarkus.logging.Log;
+import io.quarkus.test.junit.QuarkusTest;
+import io.smallrye.mutiny.Uni;
 
 @QuarkusTest
 class DoclingServeApiTests {
@@ -103,8 +114,16 @@ class DoclingServeApiTests {
 
     @Nested
     class ConvertTests {
-        static void assertConvertHttpSource(ConvertDocumentResponse response) {
-            assertThat(response).isNotNull();
+        private static InBodyConvertDocumentResponse assertConvertInBodySource(ConvertDocumentResponse response) {
+            return assertThat(response)
+                    .isNotNull()
+                    .asInstanceOf(InstanceOfAssertFactories.type(InBodyConvertDocumentResponse.class))
+                    .actual();
+        }
+
+        static void assertConvertHttpSource(ConvertDocumentResponse res) {
+            var response = assertConvertInBodySource(res);
+
             assertThat(response.getStatus()).isNotEmpty();
             assertThat(response.getDocument()).isNotNull();
             assertThat(response.getDocument().getFilename()).isNotEmpty();
@@ -114,6 +133,24 @@ class DoclingServeApiTests {
             }
 
             assertThat(response.getDocument().getMarkdownContent()).isNotEmpty();
+        }
+
+        static void assertZipArchiveEntries(InputStream inputStream, Set<String> expectedEntries) {
+            var actualEntries = new TreeSet<>();
+
+            try (var zipInputStream = new ZipInputStream(inputStream)) {
+                ZipEntry entry;
+                while ((entry = zipInputStream.getNextEntry()) != null) {
+                    actualEntries.add(entry.getName());
+                    Log.infof("Found entry in ZIP: %s (size: %d bytes)", entry.getName(), entry.getSize());
+                    zipInputStream.closeEntry();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            assertThat(actualEntries)
+                    .containsExactlyInAnyOrderElementsOf(expectedEntries);
         }
 
         @Test
@@ -171,8 +208,117 @@ class DoclingServeApiTests {
         }
 
         @Test
+        void shouldConvertMultipleFileSourcesAsync() {
+            var files = new Path[] {
+                    Path.of("src", "main", "resources", "2408.09869.pdf"),
+                    Path.of("src", "main", "resources", "story.pdf")
+            };
+
+            var requestBuilder = ConvertDocumentRequest.builder();
+
+            FileUtils.createFileSources(files)
+                    .forEach(requestBuilder::source);
+
+            var response = doclingServeApi.convertSourceAsync(requestBuilder.build()).toCompletableFuture().join();
+
+            assertThat(response)
+                    .isNotNull()
+                    .asInstanceOf(InstanceOfAssertFactories.type(ZipArchiveConvertDocumentResponse.class))
+                    .satisfies(r -> assertZipArchiveEntries(r.getInputStream(), Set.of("2408.09869.md", "story.md")))
+                    .extracting(
+                            ZipArchiveConvertDocumentResponse::getFileName,
+                            ZipArchiveConvertDocumentResponse::getResponseType)
+                    .containsExactly(
+                            "converted_docs.zip",
+                            ResponseType.ZIP_ARCHIVE);
+        }
+
+        @Test
+        void shouldConvertMultipleFileSources() {
+            var files = new Path[] {
+                    Path.of("src", "main", "resources", "2408.09869.pdf"),
+                    Path.of("src", "main", "resources", "story.pdf")
+            };
+
+            var requestBuilder = ConvertDocumentRequest.builder();
+
+            FileUtils.createFileSources(files)
+                    .forEach(requestBuilder::source);
+
+            var response = doclingServeApi.convertSource(requestBuilder.build());
+
+            assertThat(response)
+                    .isNotNull()
+                    .asInstanceOf(InstanceOfAssertFactories.type(ZipArchiveConvertDocumentResponse.class))
+                    .satisfies(r -> assertZipArchiveEntries(r.getInputStream(), Set.of("2408.09869.md", "story.md")))
+                    .extracting(
+                            ZipArchiveConvertDocumentResponse::getFileName,
+                            ZipArchiveConvertDocumentResponse::getResponseType)
+                    .containsExactly(
+                            "converted_docs.zip",
+                            ResponseType.ZIP_ARCHIVE);
+        }
+
+        @Test
+        void shouldConvertSingleFileSourceWithZipTargetAndReferencedImageExportModeAsync() {
+            var requestBuilder = ConvertDocumentRequest
+                    .builder()
+                    .target(ZipTarget.builder().build())
+                    .options(
+                            ConvertDocumentOptions.builder()
+                                    .imageExportMode(ImageRefMode.REFERENCED)
+                                    .build());
+
+            FileUtils.createFileSources(Path.of("src", "main", "resources", "2408.09869.pdf"))
+                    .forEach(requestBuilder::source);
+
+            var response = doclingServeApi.convertSourceAsync(requestBuilder.build()).toCompletableFuture().join();
+
+            assertThat(response)
+                    .isNotNull()
+                    .asInstanceOf(InstanceOfAssertFactories.type(ZipArchiveConvertDocumentResponse.class))
+                    .satisfies(r -> assertZipArchiveEntries(r.getInputStream(), Set.of("2408.09869.md", "artifacts/",
+                            "artifacts/image_000000_4f05ea6de89ce20493a5d9cc2305a4feb948c7bb794d7b81ee29554ec56b8445.png")))
+                    .extracting(
+                            ZipArchiveConvertDocumentResponse::getFileName,
+                            ZipArchiveConvertDocumentResponse::getResponseType)
+                    .containsExactly(
+                            "converted_docs.zip",
+                            ResponseType.ZIP_ARCHIVE);
+        }
+
+        @Test
+        void shouldConvertSingleFileSourceWithZipTargetAndReferencedImageExportMode() {
+            var requestBuilder = ConvertDocumentRequest
+                    .builder()
+                    .target(ZipTarget.builder().build())
+                    .options(
+                            ConvertDocumentOptions.builder()
+                                    .imageExportMode(ImageRefMode.REFERENCED)
+                                    .build());
+
+            FileUtils.createFileSources(Path.of("src", "main", "resources", "2408.09869.pdf"))
+                    .forEach(requestBuilder::source);
+
+            var response = doclingServeApi.convertSource(requestBuilder.build());
+
+            assertThat(response)
+                    .isNotNull()
+                    .asInstanceOf(InstanceOfAssertFactories.type(ZipArchiveConvertDocumentResponse.class))
+                    .satisfies(r -> assertZipArchiveEntries(r.getInputStream(), Set.of("2408.09869.md", "artifacts/",
+                            "artifacts/image_000000_4f05ea6de89ce20493a5d9cc2305a4feb948c7bb794d7b81ee29554ec56b8445.png")))
+                    .extracting(
+                            ZipArchiveConvertDocumentResponse::getFileName,
+                            ZipArchiveConvertDocumentResponse::getResponseType)
+                    .containsExactly(
+                            "converted_docs.zip",
+                            ResponseType.ZIP_ARCHIVE);
+        }
+
+        @Test
         void shouldConvertFileSuccessfully() {
-            var response = doclingServeApi.convertFiles(Path.of("src", "main", "resources", "story.pdf"));
+            var response = assertConvertInBodySource(
+                    doclingServeApi.convertFiles(Path.of("src", "main", "resources", "story.pdf")));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
@@ -201,7 +347,7 @@ class DoclingServeApiTests {
                     .options(options)
                     .build();
 
-            var response = doclingServeApi.convertSource(request);
+            var response = assertConvertInBodySource(doclingServeApi.convertSource(request));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
@@ -220,7 +366,7 @@ class DoclingServeApiTests {
                     .options(options)
                     .build();
 
-            ConvertDocumentResponse response = doclingServeApi.convertSource(request);
+            var response = assertConvertInBodySource(doclingServeApi.convertSource(request));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
@@ -239,7 +385,7 @@ class DoclingServeApiTests {
                             .build())
                     .build();
 
-            ConvertDocumentResponse response = doclingServeApi.convertSourceAsync(request).toCompletableFuture().join();
+            var response = assertConvertInBodySource(doclingServeApi.convertSourceAsync(request).toCompletableFuture().join());
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
@@ -249,9 +395,9 @@ class DoclingServeApiTests {
 
         @Test
         void shouldConvertFileAsync() {
-            ConvertDocumentResponse response = Uni.createFrom().completionStage(
+            var response = assertConvertInBodySource(Uni.createFrom().completionStage(
                     doclingServeApi.convertFilesAsync(Path.of("src", "main", "resources", "story.pdf")))
-                    .await().atMost(Duration.ofSeconds(10));
+                    .await().atMost(Duration.ofSeconds(10)));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
@@ -275,7 +421,7 @@ class DoclingServeApiTests {
                     .options(options)
                     .build();
 
-            ConvertDocumentResponse response = doclingServeApi.convertSourceAsync(request).toCompletableFuture().join();
+            var response = assertConvertInBodySource(doclingServeApi.convertSourceAsync(request).toCompletableFuture().join());
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
@@ -291,6 +437,7 @@ class DoclingServeApiTests {
 
             // Test chaining with thenApply
             String markdownContent = doclingServeApi.convertSourceAsync(request)
+                    .thenApply(ConvertTests::assertConvertInBodySource)
                     .thenApply(response -> response.getDocument().getMarkdownContent())
                     .toCompletableFuture().join();
 

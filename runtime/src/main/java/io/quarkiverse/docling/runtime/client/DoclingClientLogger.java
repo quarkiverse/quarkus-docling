@@ -3,7 +3,10 @@ package io.quarkiverse.docling.runtime.client;
 import static java.util.stream.Collectors.joining;
 import static java.util.stream.StreamSupport.stream;
 
+import java.util.Optional;
+
 import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.MediaType;
 
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.client.api.ClientLogger;
@@ -51,8 +54,14 @@ public final class DoclingClientLogger implements ClientLogger {
                 @Override
                 public void handle(Buffer body) {
                     try {
+                        var bodyString = Optional.ofNullable(response.getHeader(HttpHeaders.CONTENT_TYPE))
+                                .map(MediaType::valueOf)
+                                .filter(contentType -> contentType.isCompatible(MediaType.APPLICATION_JSON_TYPE))
+                                .map(contentType -> bodyToString(body))
+                                .orElse("===BINARY DATA===");
+
                         LOG.infof("Response:\n- status code: %s\n- headers: %s\n- body: %s", response.statusCode(),
-                                inOneLine(response.headers()), bodyToString(body));
+                                inOneLine(response.headers()), bodyString);
                     } catch (Exception e) {
                         LOG.warn("Failed to log response", e);
                     }
