@@ -6,6 +6,8 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Supplier;
 
+import jakarta.ws.rs.core.MediaType;
+
 import org.jboss.logging.Logger;
 
 import ai.docling.serve.api.DoclingServeApi;
@@ -16,11 +18,15 @@ import ai.docling.serve.api.clear.request.ClearConvertersRequest;
 import ai.docling.serve.api.clear.request.ClearResultsRequest;
 import ai.docling.serve.api.clear.response.ClearResponse;
 import ai.docling.serve.api.convert.request.ConvertDocumentRequest;
+import ai.docling.serve.api.convert.request.target.PutTarget;
+import ai.docling.serve.api.convert.request.target.S3Target;
+import ai.docling.serve.api.convert.request.target.ZipTarget;
 import ai.docling.serve.api.convert.response.ConvertDocumentResponse;
 import ai.docling.serve.api.health.HealthCheckResponse;
 import ai.docling.serve.api.task.request.TaskResultRequest;
 import ai.docling.serve.api.task.request.TaskStatusPollRequest;
 import ai.docling.serve.api.task.response.TaskStatusPollResponse;
+import ai.docling.serve.api.util.Utils;
 import ai.docling.serve.api.util.ValidationUtils;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.smallrye.mutiny.Uni;
@@ -97,7 +103,15 @@ public class QuarkusDoclingServeApi implements DoclingServeApi {
 
     @Override
     public ConvertDocumentResponse convertSource(ConvertDocumentRequest request) {
-        return this.client.convertSource(request, this.apiMetadata);
+        var hasMultipleSources = !Utils.isNullOrEmpty(request.getSources()) ? request.getSources().size() > 1 : Boolean.FALSE;
+        var isRemoteTarget = (request.getTarget() instanceof S3Target) || (request.getTarget() instanceof PutTarget);
+        var isZipTarget = request.getTarget() instanceof ZipTarget;
+
+        var response = this.client.convertSource(request, this.apiMetadata);
+
+        return ((hasMultipleSources && !isRemoteTarget) || isZipTarget)
+                ? ZipArchiveConvertDocumentResponseBuilder.build(response)
+                : response.readEntity(ConvertDocumentResponse.class);
     }
 
     @Override
@@ -117,7 +131,7 @@ public class QuarkusDoclingServeApi implements DoclingServeApi {
 
     @Override
     public ConvertDocumentResponse convertTaskResult(TaskResultRequest request) {
-        return this.client.convertTaskResult(request.getTaskId(), this.apiMetadata);
+        return convertTaskResult(request.getTaskId());
     }
 
     @Override
@@ -125,8 +139,16 @@ public class QuarkusDoclingServeApi implements DoclingServeApi {
         return this.client.chunkTaskResult(request.getTaskId(), this.apiMetadata);
     }
 
+    private ConvertDocumentResponse convertTaskResult(String taskId) {
+        var response = this.client.convertTaskResult(taskId, this.apiMetadata);
+
+        return response.getMediaType().isCompatible(MediaType.APPLICATION_JSON_TYPE)
+                ? response.readEntity(ConvertDocumentResponse.class)
+                : ZipArchiveConvertDocumentResponseBuilder.build(response);
+    }
+
     private <O> CompletionStage<O> executeAsync(Supplier<Uni<TaskStatusPollResponse>> asyncActionSupplier,
-            TaskResultType taskResultType) {
+            QuarkusDoclingServeApi.TaskResultType taskResultType) {
         return asyncActionSupplier.get()
                 .runSubscriptionOn(Infrastructure.getDefaultWorkerPool())
                 .emitOn(Infrastructure.getDefaultWorkerPool())
@@ -168,8 +190,7 @@ public class QuarkusDoclingServeApi implements DoclingServeApi {
                 LOG.infof("Task %s completed successfully", taskId);
 
                 yield ((Uni<O>) switch (taskResultType) {
-                    case CONVERT -> Uni.createFrom()
-                            .item(() -> this.client.convertTaskResult(statusResponse.getTaskId(), this.apiMetadata));
+                    case CONVERT -> Uni.createFrom().item(() -> convertTaskResult(statusResponse.getTaskId()));
                     case CHUNK ->
                         Uni.createFrom().item(() -> this.client.chunkTaskResult(statusResponse.getTaskId(), this.apiMetadata));
                 })

@@ -2,7 +2,10 @@ package io.quarkiverse.docling;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
+
 import ai.docling.serve.api.convert.response.ConvertDocumentResponse;
+import ai.docling.serve.api.convert.response.InBodyConvertDocumentResponse;
 
 public class AssertionHelper {
     public static void assertStoryPdfResponse(ConvertDocumentResponse response) {
@@ -12,6 +15,7 @@ public class AssertionHelper {
     public static void assertStoryPdfResponse(ConvertDocumentResponse response, String filename) {
         assertThat(response)
                 .isNotNull()
+                .asInstanceOf(InstanceOfAssertFactories.type(InBodyConvertDocumentResponse.class))
                 .satisfies(r -> {
                     assertThat(r.getStatus()).as("response status")
                             .isNotEmpty();

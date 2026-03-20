@@ -7,7 +7,7 @@ h|[.header-title]##Configuration property##
 h|Type
 h|Default
 
-a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-image]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-image[`quarkus.docling.devservices.image`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-image]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-image[`+++quarkus.docling.devservices.image+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.devservices.image+++[]
 endif::add-copy-button-to-config-props[]
@@ -26,9 +26,9 @@ Environment variable: `+++QUARKUS_DOCLING_DEVSERVICES_IMAGE+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|ghcr.io/docling-project/docling-serve:v1.11.0
+|ghcr.io/docling-project/docling-serve:v1.14.3
 
-a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-enable-ui]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-enable-ui[`quarkus.docling.devservices.enable-ui`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-enable-ui]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-enable-ui[`+++quarkus.docling.devservices.enable-ui+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.devservices.enable-ui+++[]
 endif::add-copy-button-to-config-props[]
@@ -51,7 +51,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |true
 
-a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-container-env-container-env]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-container-env-container-env[`quarkus.docling.devservices.container-env."container-env"`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-container-env-container-env]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-container-env-container-env[`+++quarkus.docling.devservices.container-env."container-env"+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.devservices.container-env."container-env"+++[]
 endif::add-copy-button-to-config-props[]
@@ -72,7 +72,7 @@ endif::add-copy-button-to-env-var[]
 |Map<String,String>
 |
 
-a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-startup-timeout]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-startup-timeout[`quarkus.docling.devservices.startup-timeout`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-startup-timeout]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-startup-timeout[`+++quarkus.docling.devservices.startup-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.devservices.startup-timeout+++[]
 endif::add-copy-button-to-config-props[]
@@ -93,7 +93,7 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-docling_quarkus-docling[icon:question-circle[title=More information about the Duration format]]
 |${QUARKUS.DEVSERVICES.TIMEOUT:PT1M}
 
-a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-api-key]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-api-key[`quarkus.docling.devservices.api-key`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-api-key]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-api-key[`+++quarkus.docling.devservices.api-key+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.devservices.api-key+++[]
 endif::add-copy-button-to-config-props[]
@@ -114,7 +114,7 @@ endif::add-copy-button-to-env-var[]
 |string
 |default-api-key
 
-a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-enabled]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-enabled[`quarkus.docling.devservices.enabled`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-docling_quarkus-docling-devservices-enabled]] [.property-path]##link:#quarkus-docling_quarkus-docling-devservices-enabled[`+++quarkus.docling.devservices.enabled+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.devservices.enabled+++[]
 endif::add-copy-button-to-config-props[]
@@ -137,7 +137,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |true
 
-a| [[quarkus-docling_quarkus-docling-base-url]] [.property-path]##link:#quarkus-docling_quarkus-docling-base-url[`quarkus.docling.base-url`]##
+a| [[quarkus-docling_quarkus-docling-base-url]] [.property-path]##link:#quarkus-docling_quarkus-docling-base-url[`+++quarkus.docling.base-url+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.base-url+++[]
 endif::add-copy-button-to-config-props[]
@@ -158,7 +158,7 @@ endif::add-copy-button-to-env-var[]
 |string
 |required icon:exclamation-circle[title=Configuration property is required]
 
-a| [[quarkus-docling_quarkus-docling-timeout]] [.property-path]##link:#quarkus-docling_quarkus-docling-timeout[`quarkus.docling.timeout`]##
+a| [[quarkus-docling_quarkus-docling-timeout]] [.property-path]##link:#quarkus-docling_quarkus-docling-timeout[`+++quarkus.docling.timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.timeout+++[]
 endif::add-copy-button-to-config-props[]
@@ -179,7 +179,7 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-docling_quarkus-docling[icon:question-circle[title=More information about the Duration format]]
 |1M
 
-a| [[quarkus-docling_quarkus-docling-log-requests]] [.property-path]##link:#quarkus-docling_quarkus-docling-log-requests[`quarkus.docling.log-requests`]##
+a| [[quarkus-docling_quarkus-docling-log-requests]] [.property-path]##link:#quarkus-docling_quarkus-docling-log-requests[`+++quarkus.docling.log-requests+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.log-requests+++[]
 endif::add-copy-button-to-config-props[]
@@ -200,7 +200,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |false
 
-a| [[quarkus-docling_quarkus-docling-log-responses]] [.property-path]##link:#quarkus-docling_quarkus-docling-log-responses[`quarkus.docling.log-responses`]##
+a| [[quarkus-docling_quarkus-docling-log-responses]] [.property-path]##link:#quarkus-docling_quarkus-docling-log-responses[`+++quarkus.docling.log-responses+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.log-responses+++[]
 endif::add-copy-button-to-config-props[]
@@ -221,7 +221,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |false
 
-a| [[quarkus-docling_quarkus-docling-pretty-print]] [.property-path]##link:#quarkus-docling_quarkus-docling-pretty-print[`quarkus.docling.pretty-print`]##
+a| [[quarkus-docling_quarkus-docling-pretty-print]] [.property-path]##link:#quarkus-docling_quarkus-docling-pretty-print[`+++quarkus.docling.pretty-print+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.pretty-print+++[]
 endif::add-copy-button-to-config-props[]
@@ -242,7 +242,7 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |false
 
-a| [[quarkus-docling_quarkus-docling-async-poll-interval]] [.property-path]##link:#quarkus-docling_quarkus-docling-async-poll-interval[`quarkus.docling.async-poll-interval`]##
+a| [[quarkus-docling_quarkus-docling-async-poll-interval]] [.property-path]##link:#quarkus-docling_quarkus-docling-async-poll-interval[`+++quarkus.docling.async-poll-interval+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.async-poll-interval+++[]
 endif::add-copy-button-to-config-props[]
@@ -263,7 +263,7 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-docling_quarkus-docling[icon:question-circle[title=More information about the Duration format]]
 |2S
 
-a| [[quarkus-docling_quarkus-docling-async-timeout]] [.property-path]##link:#quarkus-docling_quarkus-docling-async-timeout[`quarkus.docling.async-timeout`]##
+a| [[quarkus-docling_quarkus-docling-async-timeout]] [.property-path]##link:#quarkus-docling_quarkus-docling-async-timeout[`+++quarkus.docling.async-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.async-timeout+++[]
 endif::add-copy-button-to-config-props[]
@@ -284,7 +284,7 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-docling_quarkus-docling[icon:question-circle[title=More information about the Duration format]]
 |${QUARKUS.DOCLING.TIMEOUT:5M}
 
-a| [[quarkus-docling_quarkus-docling-api-key]] [.property-path]##link:#quarkus-docling_quarkus-docling-api-key[`quarkus.docling.api-key`]##
+a| [[quarkus-docling_quarkus-docling-api-key]] [.property-path]##link:#quarkus-docling_quarkus-docling-api-key[`+++quarkus.docling.api-key+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.api-key+++[]
 endif::add-copy-button-to-config-props[]
@@ -305,7 +305,7 @@ endif::add-copy-button-to-env-var[]
 |string
 |
 
-a| [[quarkus-docling_quarkus-docling-connect-timeout]] [.property-path]##link:#quarkus-docling_quarkus-docling-connect-timeout[`quarkus.docling.connect-timeout`]##
+a| [[quarkus-docling_quarkus-docling-connect-timeout]] [.property-path]##link:#quarkus-docling_quarkus-docling-connect-timeout[`+++quarkus.docling.connect-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.connect-timeout+++[]
 endif::add-copy-button-to-config-props[]
@@ -328,7 +328,7 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-docling_quarkus-docling[icon:question-circle[title=More information about the Duration format]]
 |${QUARKUS.DOCLING.TIMEOUT}
 
-a| [[quarkus-docling_quarkus-docling-read-timeout]] [.property-path]##link:#quarkus-docling_quarkus-docling-read-timeout[`quarkus.docling.read-timeout`]##
+a| [[quarkus-docling_quarkus-docling-read-timeout]] [.property-path]##link:#quarkus-docling_quarkus-docling-read-timeout[`+++quarkus.docling.read-timeout+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.docling.read-timeout+++[]
 endif::add-copy-button-to-config-props[]
