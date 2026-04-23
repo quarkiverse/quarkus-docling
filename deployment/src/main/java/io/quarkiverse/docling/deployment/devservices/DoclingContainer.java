@@ -4,16 +4,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import org.jboss.logging.Logger;
-
-import ai.docling.testcontainers.serve.DoclingServeContainer;
-import io.quarkiverse.docling.deployment.devservices.config.DoclingDevServicesConfig;
-import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.quarkus.devservices.common.ConfigureUtil;
 
-public class DoclingContainer extends DoclingServeContainer {
-    private static final Logger LOG = Logger.getLogger(DoclingContainer.class);
+import ai.docling.testcontainers.serve.DoclingServeContainer;
 
+import io.quarkiverse.docling.deployment.devservices.config.DoclingDevServicesConfig;
+import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
+
+public class DoclingContainer extends DoclingServeContainer {
     /**
      * Configuration key for the port number used by the Docling dev service
      */
