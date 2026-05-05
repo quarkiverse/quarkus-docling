@@ -22,6 +22,11 @@
 			<version>${quarkus.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-jackson-deployment</artifactId>
+			<version>${quarkus.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>io.quarkiverse.docling</groupId>
 			<artifactId>quarkus-docling</artifactId>
 			<version>${project.version}</version>

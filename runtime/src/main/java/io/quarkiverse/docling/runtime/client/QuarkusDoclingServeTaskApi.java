@@ -7,9 +7,9 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 import ai.docling.serve.api.chunk.response.ChunkDocumentResponse;
-import ai.docling.serve.api.convert.response.ConvertDocumentResponse;
 import ai.docling.serve.api.task.response.TaskStatusPollResponse;
 
 public interface QuarkusDoclingServeTaskApi {
@@ -21,8 +21,8 @@ public interface QuarkusDoclingServeTaskApi {
 
     @Path("/v1/result/{taskId}")
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    ConvertDocumentResponse convertTaskResult(@PathParam("taskId") String taskId, @BeanParam ApiMetadata metadata);
+    @Produces({ MediaType.APPLICATION_JSON, MediaType.APPLICATION_OCTET_STREAM })
+    Response convertTaskResult(@PathParam("taskId") String taskId, @BeanParam ApiMetadata metadata);
 
     @Path("/v1/result/{taskId}")
     @GET

@@ -4,10 +4,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.WebApplicationException;
@@ -30,16 +36,23 @@ import ai.docling.serve.api.clear.request.ClearResultsRequest;
 import ai.docling.serve.api.clear.response.ClearResponse;
 import ai.docling.serve.api.convert.request.ConvertDocumentRequest;
 import ai.docling.serve.api.convert.request.options.ConvertDocumentOptions;
+import ai.docling.serve.api.convert.request.options.ImageRefMode;
 import ai.docling.serve.api.convert.request.options.OutputFormat;
 import ai.docling.serve.api.convert.request.options.TableFormerMode;
 import ai.docling.serve.api.convert.request.source.HttpSource;
+import ai.docling.serve.api.convert.request.target.ZipTarget;
 import ai.docling.serve.api.convert.response.ConvertDocumentResponse;
+import ai.docling.serve.api.convert.response.InBodyConvertDocumentResponse;
+import ai.docling.serve.api.convert.response.ResponseType;
+import ai.docling.serve.api.convert.response.ZipArchiveConvertDocumentResponse;
 import ai.docling.serve.api.health.HealthCheckResponse;
 import ai.docling.serve.api.task.request.TaskStatusPollRequest;
+import ai.docling.serve.api.util.FileUtils;
 import ai.docling.serve.api.validation.ValidationError;
 import ai.docling.serve.api.validation.ValidationErrorContext;
 import ai.docling.serve.api.validation.ValidationErrorDetail;
 import ai.docling.serve.api.validation.ValidationException;
+import io.quarkus.logging.Log;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
 
@@ -101,8 +114,16 @@ class DoclingServeApiTests {
 
     @Nested
     class ConvertTests {
-        static void assertConvertHttpSource(ConvertDocumentResponse response) {
-            assertThat(response).isNotNull();
+        private static InBodyConvertDocumentResponse assertConvertInBodySource(ConvertDocumentResponse response) {
+            return assertThat(response)
+                    .isNotNull()
+                    .asInstanceOf(InstanceOfAssertFactories.type(InBodyConvertDocumentResponse.class))
+                    .actual();
+        }
+
+        static void assertConvertHttpSource(ConvertDocumentResponse res) {
+            var response = assertConvertInBodySource(res);
+
             assertThat(response.getStatus()).isNotEmpty();
             assertThat(response.getDocument()).isNotNull();
             assertThat(response.getDocument().getFilename()).isNotEmpty();
@@ -114,9 +135,27 @@ class DoclingServeApiTests {
             assertThat(response.getDocument().getMarkdownContent()).isNotEmpty();
         }
 
+        static void assertZipArchiveEntries(InputStream inputStream, Set<String> expectedEntries) {
+            var actualEntries = new TreeSet<>();
+
+            try (var zipInputStream = new ZipInputStream(inputStream)) {
+                ZipEntry entry;
+                while ((entry = zipInputStream.getNextEntry()) != null) {
+                    actualEntries.add(entry.getName());
+                    Log.infof("Found entry in ZIP: %s (size: %d bytes)", entry.getName(), entry.getSize());
+                    zipInputStream.closeEntry();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            assertThat(actualEntries)
+                    .containsExactlyInAnyOrderElementsOf(expectedEntries);
+        }
+
         @Test
         void shouldThrowValidationError() {
-            var file = Path.of("src", "test", "resources", "story.pdf");
+            var file = Path.of("src", "main", "resources", "story.pdf");
 
             assertThat(file)
                     .exists()
@@ -150,7 +189,6 @@ class DoclingServeApiTests {
                                     .type("url_scheme")
                                     .message("URL scheme should be 'http' or 'https'")
                                     .locations(List.of("body", "sources", 0, "http", "url"))
-                                    .input(file.toUri().toString())
                                     .context(
                                             ValidationErrorContext.builder()
                                                     .expectedSchemes("'http' or 'https'")
@@ -170,8 +208,117 @@ class DoclingServeApiTests {
         }
 
         @Test
+        void shouldConvertMultipleFileSourcesAsync() {
+            var files = new Path[] {
+                    Path.of("src", "main", "resources", "2408.09869.pdf"),
+                    Path.of("src", "main", "resources", "story.pdf")
+            };
+
+            var requestBuilder = ConvertDocumentRequest.builder();
+
+            FileUtils.createFileSources(files)
+                    .forEach(requestBuilder::source);
+
+            var response = doclingServeApi.convertSourceAsync(requestBuilder.build()).toCompletableFuture().join();
+
+            assertThat(response)
+                    .isNotNull()
+                    .asInstanceOf(InstanceOfAssertFactories.type(ZipArchiveConvertDocumentResponse.class))
+                    .satisfies(r -> assertZipArchiveEntries(r.getInputStream(), Set.of("2408.09869.md", "story.md")))
+                    .extracting(
+                            ZipArchiveConvertDocumentResponse::getFileName,
+                            ZipArchiveConvertDocumentResponse::getResponseType)
+                    .containsExactly(
+                            "converted_docs.zip",
+                            ResponseType.ZIP_ARCHIVE);
+        }
+
+        @Test
+        void shouldConvertMultipleFileSources() {
+            var files = new Path[] {
+                    Path.of("src", "main", "resources", "2408.09869.pdf"),
+                    Path.of("src", "main", "resources", "story.pdf")
+            };
+
+            var requestBuilder = ConvertDocumentRequest.builder();
+
+            FileUtils.createFileSources(files)
+                    .forEach(requestBuilder::source);
+
+            var response = doclingServeApi.convertSource(requestBuilder.build());
+
+            assertThat(response)
+                    .isNotNull()
+                    .asInstanceOf(InstanceOfAssertFactories.type(ZipArchiveConvertDocumentResponse.class))
+                    .satisfies(r -> assertZipArchiveEntries(r.getInputStream(), Set.of("2408.09869.md", "story.md")))
+                    .extracting(
+                            ZipArchiveConvertDocumentResponse::getFileName,
+                            ZipArchiveConvertDocumentResponse::getResponseType)
+                    .containsExactly(
+                            "converted_docs.zip",
+                            ResponseType.ZIP_ARCHIVE);
+        }
+
+        @Test
+        void shouldConvertSingleFileSourceWithZipTargetAndReferencedImageExportModeAsync() {
+            var requestBuilder = ConvertDocumentRequest
+                    .builder()
+                    .target(ZipTarget.builder().build())
+                    .options(
+                            ConvertDocumentOptions.builder()
+                                    .imageExportMode(ImageRefMode.REFERENCED)
+                                    .build());
+
+            FileUtils.createFileSources(Path.of("src", "main", "resources", "2408.09869.pdf"))
+                    .forEach(requestBuilder::source);
+
+            var response = doclingServeApi.convertSourceAsync(requestBuilder.build()).toCompletableFuture().join();
+
+            assertThat(response)
+                    .isNotNull()
+                    .asInstanceOf(InstanceOfAssertFactories.type(ZipArchiveConvertDocumentResponse.class))
+                    .satisfies(r -> assertZipArchiveEntries(r.getInputStream(), Set.of("2408.09869.md", "artifacts/",
+                            "artifacts/image_000000_4f05ea6de89ce20493a5d9cc2305a4feb948c7bb794d7b81ee29554ec56b8445.png")))
+                    .extracting(
+                            ZipArchiveConvertDocumentResponse::getFileName,
+                            ZipArchiveConvertDocumentResponse::getResponseType)
+                    .containsExactly(
+                            "converted_docs.zip",
+                            ResponseType.ZIP_ARCHIVE);
+        }
+
+        @Test
+        void shouldConvertSingleFileSourceWithZipTargetAndReferencedImageExportMode() {
+            var requestBuilder = ConvertDocumentRequest
+                    .builder()
+                    .target(ZipTarget.builder().build())
+                    .options(
+                            ConvertDocumentOptions.builder()
+                                    .imageExportMode(ImageRefMode.REFERENCED)
+                                    .build());
+
+            FileUtils.createFileSources(Path.of("src", "main", "resources", "2408.09869.pdf"))
+                    .forEach(requestBuilder::source);
+
+            var response = doclingServeApi.convertSource(requestBuilder.build());
+
+            assertThat(response)
+                    .isNotNull()
+                    .asInstanceOf(InstanceOfAssertFactories.type(ZipArchiveConvertDocumentResponse.class))
+                    .satisfies(r -> assertZipArchiveEntries(r.getInputStream(), Set.of("2408.09869.md", "artifacts/",
+                            "artifacts/image_000000_4f05ea6de89ce20493a5d9cc2305a4feb948c7bb794d7b81ee29554ec56b8445.png")))
+                    .extracting(
+                            ZipArchiveConvertDocumentResponse::getFileName,
+                            ZipArchiveConvertDocumentResponse::getResponseType)
+                    .containsExactly(
+                            "converted_docs.zip",
+                            ResponseType.ZIP_ARCHIVE);
+        }
+
+        @Test
         void shouldConvertFileSuccessfully() {
-            var response = doclingServeApi.convertFiles(Path.of("src", "test", "resources", "story.pdf"));
+            var response = assertConvertInBodySource(
+                    doclingServeApi.convertFiles(Path.of("src", "main", "resources", "story.pdf")));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
@@ -200,7 +347,7 @@ class DoclingServeApiTests {
                     .options(options)
                     .build();
 
-            var response = doclingServeApi.convertSource(request);
+            var response = assertConvertInBodySource(doclingServeApi.convertSource(request));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
@@ -219,7 +366,7 @@ class DoclingServeApiTests {
                     .options(options)
                     .build();
 
-            ConvertDocumentResponse response = doclingServeApi.convertSource(request);
+            var response = assertConvertInBodySource(doclingServeApi.convertSource(request));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
@@ -238,7 +385,7 @@ class DoclingServeApiTests {
                             .build())
                     .build();
 
-            ConvertDocumentResponse response = doclingServeApi.convertSourceAsync(request).toCompletableFuture().join();
+            var response = assertConvertInBodySource(doclingServeApi.convertSourceAsync(request).toCompletableFuture().join());
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
@@ -248,9 +395,9 @@ class DoclingServeApiTests {
 
         @Test
         void shouldConvertFileAsync() {
-            ConvertDocumentResponse response = Uni.createFrom().completionStage(
-                    doclingServeApi.convertFilesAsync(Path.of("src", "test", "resources", "story.pdf")))
-                    .await().atMost(Duration.ofSeconds(10));
+            var response = assertConvertInBodySource(Uni.createFrom().completionStage(
+                    doclingServeApi.convertFilesAsync(Path.of("src", "main", "resources", "story.pdf")))
+                    .await().atMost(Duration.ofSeconds(10)));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
@@ -274,7 +421,7 @@ class DoclingServeApiTests {
                     .options(options)
                     .build();
 
-            ConvertDocumentResponse response = doclingServeApi.convertSourceAsync(request).toCompletableFuture().join();
+            var response = assertConvertInBodySource(doclingServeApi.convertSourceAsync(request).toCompletableFuture().join());
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
@@ -290,6 +437,7 @@ class DoclingServeApiTests {
 
             // Test chaining with thenApply
             String markdownContent = doclingServeApi.convertSourceAsync(request)
+                    .thenApply(ConvertTests::assertConvertInBodySource)
                     .thenApply(response -> response.getDocument().getMarkdownContent())
                     .toCompletableFuture().join();
 
@@ -313,15 +461,15 @@ class DoclingServeApiTests {
         @Test
         void convertNonExistentFile() {
             assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> doclingServeApi.convertFiles(Path.of("src", "test", "resources", "file1234.pdf")))
-                    .withMessage("File (src/test/resources/file1234.pdf) does not exist");
+                    .isThrownBy(() -> doclingServeApi.convertFiles(Path.of("src", "main", "resources", "file1234.pdf")))
+                    .withMessage("File (src/main/resources/file1234.pdf) does not exist");
         }
 
         @Test
         void convertFilesNotRegularFile() {
             assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> doclingServeApi.convertFiles(Path.of("src", "test", "resources")))
-                    .withMessage("File (src/test/resources) is not a regular file");
+                    .isThrownBy(() -> doclingServeApi.convertFiles(Path.of("src", "main", "resources")))
+                    .withMessage("File (src/main/resources) is not a regular file");
         }
 
         @Test
@@ -341,15 +489,15 @@ class DoclingServeApiTests {
         @Test
         void convertAsyncNonExistentFile() {
             assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> doclingServeApi.convertFilesAsync(Path.of("src", "test", "resources", "file1234.pdf")))
-                    .withMessage("File (src/test/resources/file1234.pdf) does not exist");
+                    .isThrownBy(() -> doclingServeApi.convertFilesAsync(Path.of("src", "main", "resources", "file1234.pdf")))
+                    .withMessage("File (src/main/resources/file1234.pdf) does not exist");
         }
 
         @Test
         void convertAsyncFilesNotRegularFile() {
             assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> doclingServeApi.convertFilesAsync(Path.of("src", "test", "resources")))
-                    .withMessage("File (src/test/resources) is not a regular file");
+                    .isThrownBy(() -> doclingServeApi.convertFilesAsync(Path.of("src", "main", "resources")))
+                    .withMessage("File (src/main/resources) is not a regular file");
         }
     }
 
@@ -359,15 +507,15 @@ class DoclingServeApiTests {
         void chunkHierarchicalNonExistentFile() {
             assertThatExceptionOfType(IllegalArgumentException.class)
                     .isThrownBy(() -> doclingServeApi
-                            .chunkFilesWithHierarchicalChunker(Path.of("src", "test", "resources", "file1234.pdf")))
-                    .withMessage("File (src/test/resources/file1234.pdf) does not exist");
+                            .chunkFilesWithHierarchicalChunker(Path.of("src", "main", "resources", "file1234.pdf")))
+                    .withMessage("File (src/main/resources/file1234.pdf) does not exist");
         }
 
         @Test
         void chunkHierarchicalFilesNotRegularFile() {
             assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> doclingServeApi.chunkFilesWithHierarchicalChunker(Path.of("src", "test", "resources")))
-                    .withMessage("File (src/test/resources) is not a regular file");
+                    .isThrownBy(() -> doclingServeApi.chunkFilesWithHierarchicalChunker(Path.of("src", "main", "resources")))
+                    .withMessage("File (src/main/resources) is not a regular file");
         }
 
         @Test
@@ -388,16 +536,16 @@ class DoclingServeApiTests {
         void chunkHierarchicalAsyncNonExistentFile() {
             assertThatExceptionOfType(IllegalArgumentException.class)
                     .isThrownBy(() -> doclingServeApi
-                            .chunkFilesWithHierarchicalChunkerAsync(Path.of("src", "test", "resources", "file1234.pdf")))
-                    .withMessage("File (src/test/resources/file1234.pdf) does not exist");
+                            .chunkFilesWithHierarchicalChunkerAsync(Path.of("src", "main", "resources", "file1234.pdf")))
+                    .withMessage("File (src/main/resources/file1234.pdf) does not exist");
         }
 
         @Test
         void chunkHierarchicalAsyncFilesNotRegularFile() {
             assertThatExceptionOfType(IllegalArgumentException.class)
                     .isThrownBy(
-                            () -> doclingServeApi.chunkFilesWithHierarchicalChunkerAsync(Path.of("src", "test", "resources")))
-                    .withMessage("File (src/test/resources) is not a regular file");
+                            () -> doclingServeApi.chunkFilesWithHierarchicalChunkerAsync(Path.of("src", "main", "resources")))
+                    .withMessage("File (src/main/resources) is not a regular file");
         }
 
         @Test
@@ -418,30 +566,30 @@ class DoclingServeApiTests {
         void chunkHybridNonExistentFile() {
             assertThatExceptionOfType(IllegalArgumentException.class)
                     .isThrownBy(() -> doclingServeApi
-                            .chunkFilesWithHybridChunker(Path.of("src", "test", "resources", "file1234.pdf")))
-                    .withMessage("File (src/test/resources/file1234.pdf) does not exist");
+                            .chunkFilesWithHybridChunker(Path.of("src", "main", "resources", "file1234.pdf")))
+                    .withMessage("File (src/main/resources/file1234.pdf) does not exist");
         }
 
         @Test
         void chunkHybridFilesNotRegularFile() {
             assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> doclingServeApi.chunkFilesWithHybridChunker(Path.of("src", "test", "resources")))
-                    .withMessage("File (src/test/resources) is not a regular file");
+                    .isThrownBy(() -> doclingServeApi.chunkFilesWithHybridChunker(Path.of("src", "main", "resources")))
+                    .withMessage("File (src/main/resources) is not a regular file");
         }
 
         @Test
         void chunkHybridAsyncNonExistentFile() {
             assertThatExceptionOfType(IllegalArgumentException.class)
                     .isThrownBy(() -> doclingServeApi
-                            .chunkFilesWithHybridChunkerAsync(Path.of("src", "test", "resources", "file1234.pdf")))
-                    .withMessage("File (src/test/resources/file1234.pdf) does not exist");
+                            .chunkFilesWithHybridChunkerAsync(Path.of("src", "main", "resources", "file1234.pdf")))
+                    .withMessage("File (src/main/resources/file1234.pdf) does not exist");
         }
 
         @Test
         void chunkHybridAsyncFilesNotRegularFile() {
             assertThatExceptionOfType(IllegalArgumentException.class)
-                    .isThrownBy(() -> doclingServeApi.chunkFilesWithHybridChunkerAsync(Path.of("src", "test", "resources")))
-                    .withMessage("File (src/test/resources) is not a regular file");
+                    .isThrownBy(() -> doclingServeApi.chunkFilesWithHybridChunkerAsync(Path.of("src", "main", "resources")))
+                    .withMessage("File (src/main/resources) is not a regular file");
         }
 
         @Test
@@ -573,7 +721,7 @@ class DoclingServeApiTests {
                     .build();
 
             var response = doclingServeApi.chunkFilesWithHierarchicalChunker(request,
-                    Path.of("src", "test", "resources", "story.pdf"));
+                    Path.of("src", "main", "resources", "story.pdf"));
 
             assertThat(response).isNotNull();
             assertThat(response.getChunks()).isNotEmpty();
@@ -600,7 +748,7 @@ class DoclingServeApiTests {
                     .build();
 
             var response = doclingServeApi
-                    .chunkFilesWithHierarchicalChunkerAsync(request, Path.of("src", "test", "resources", "story.pdf"))
+                    .chunkFilesWithHierarchicalChunkerAsync(request, Path.of("src", "main", "resources", "story.pdf"))
                     .toCompletableFuture().join();
 
             assertThat(response).isNotNull();
@@ -719,7 +867,7 @@ class DoclingServeApiTests {
                     .build();
 
             var response = doclingServeApi.chunkFilesWithHybridChunker(request,
-                    Path.of("src", "test", "resources", "story.pdf"));
+                    Path.of("src", "main", "resources", "story.pdf"));
 
             assertThat(response).isNotNull();
             assertThat(response.getChunks()).isNotEmpty();
@@ -748,7 +896,7 @@ class DoclingServeApiTests {
                     .build();
 
             var response = doclingServeApi
-                    .chunkFilesWithHybridChunkerAsync(request, Path.of("src", "test", "resources", "story.pdf"))
+                    .chunkFilesWithHybridChunkerAsync(request, Path.of("src", "main", "resources", "story.pdf"))
                     .toCompletableFuture()
                     .join();
 
@@ -763,7 +911,7 @@ class DoclingServeApiTests {
 
         @Test
         void shouldThrowValidationErrorHierarchicalChunker() {
-            var file = Path.of("src", "test", "resources", "story.pdf");
+            var file = Path.of("src", "main", "resources", "story.pdf");
 
             assertThat(file)
                     .exists()
@@ -797,7 +945,6 @@ class DoclingServeApiTests {
                                     .type("url_scheme")
                                     .message("URL scheme should be 'http' or 'https'")
                                     .locations(List.of("body", "sources", 0, "http", "url"))
-                                    .input(file.toUri().toString())
                                     .context(
                                             ValidationErrorContext.builder()
                                                     .expectedSchemes("'http' or 'https'")
@@ -807,7 +954,7 @@ class DoclingServeApiTests {
 
         @Test
         void shouldThrowValidationErrorHybridChunker() {
-            var file = Path.of("src", "test", "resources", "story.pdf");
+            var file = Path.of("src", "main", "resources", "story.pdf");
 
             assertThat(file)
                     .exists()
@@ -841,7 +988,6 @@ class DoclingServeApiTests {
                                     .type("url_scheme")
                                     .message("URL scheme should be 'http' or 'https'")
                                     .locations(List.of("body", "sources", 0, "http", "url"))
-                                    .input(file.toUri().toString())
                                     .context(
                                             ValidationErrorContext.builder()
                                                     .expectedSchemes("'http' or 'https'")
