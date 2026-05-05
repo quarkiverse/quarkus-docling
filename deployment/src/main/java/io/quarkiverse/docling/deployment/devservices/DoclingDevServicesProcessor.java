@@ -86,14 +86,14 @@ public class DoclingDevServicesProcessor {
                             containerAddress.getPort());
 
                     return DevServicesResultBuildItem.discovered()
-                            .name(PROVIDER)
+                            .feature(FEATURE)
                             .containerId(containerAddress.getId())
                             .description("Docling Serve")
                             .config(config)
                             .build();
                 })
                 .orElseGet(() -> DevServicesResultBuildItem.owned()
-                        .name(PROVIDER)
+                        .feature(FEATURE)
                         .description("Docling Serve")
                         .serviceName(devServicesConfig.serviceName())
                         .serviceConfig(doclingServeContainerConfig)

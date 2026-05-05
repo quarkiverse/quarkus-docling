@@ -9,15 +9,13 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-import io.quarkus.devservices.common.ConfigureUtil;
-
-import io.quarkus.deployment.builditem.Startable;
-import io.quarkus.devservices.common.ConfigureUtil;
-
-import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
+import org.jboss.logging.Logger;
 
 import ai.docling.testcontainers.serve.DoclingServeContainer;
 import ai.docling.testcontainers.serve.config.DoclingServeContainerConfig;
+import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
+import io.quarkus.deployment.builditem.Startable;
+import io.quarkus.devservices.common.ConfigureUtil;
 
 public class DoclingContainer extends DoclingServeContainer implements Startable {
     private static final Logger LOG = Logger.getLogger(DoclingContainer.class);
@@ -81,7 +79,7 @@ public class DoclingContainer extends DoclingServeContainer implements Startable
         Function<DoclingContainer, String> apiEndpointFunction = DoclingContainer::getApiUrl;
 
         exposed.put(CONFIG_DOCLING_PORT, c -> Objects.toString(c.getPort()));
-        exposed.put(CONFIG_DOCLING_HTTP_SERVER, c -> c.getHost());
+        exposed.put(CONFIG_DOCLING_HTTP_SERVER, DoclingContainer::getHost);
         exposed.put(CONFIG_DOCLING_API_ENDPOINT, apiEndpointFunction);
         exposed.put(CONFIG_DOCLING_API_DOC, c -> "%s/docs".formatted(apiEndpointFunction.apply(c)));
         exposed.put(CONFIG_DOCLING_API_SCALAR_DOC, c -> "%s/scalar".formatted(apiEndpointFunction.apply(c)));
@@ -94,20 +92,7 @@ public class DoclingContainer extends DoclingServeContainer implements Startable
             exposed.put(CONFIG_DOCLING_UI, c -> "%s/ui".formatted(apiEndpointFunction.apply(c)));
         }
 
-        return exposed.entrySet()
-                .stream()
-                .collect(toMap(Entry::getKey, entry -> entry.getValue().andThen(s -> {
-                    LOG.infof("%s=%s", entry.getKey(), s);
-//                    throw new RuntimeException();
-                  return s;
-                })));
-
-        //        return exposed;
-    }
-
-    public static Map<String, String> getExposedConfig(DoclingServeContainerConfig config, String apiUrl) {
-        var parts = apiUrl.split(":");
-        return getExposedConfig(config, parts[0], Integer.parseInt(parts[1]));
+        return exposed;
     }
 
     static Map<String, String> getExposedConfig(DoclingServeContainerConfig config, String host, int port) {
