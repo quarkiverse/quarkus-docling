@@ -2,19 +2,14 @@ package io.quarkiverse.docling.deployment.devservices.config;
 
 import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 
 import ai.docling.testcontainers.serve.config.DoclingServeContainerConfig;
 import io.quarkus.runtime.annotations.ConfigGroup;
 import io.smallrye.config.WithDefault;
 
 @ConfigGroup
-public interface DoclingDevServicesConfig extends DoclingServeContainerConfig {
-    /**
-     * The default API key used for authentication or integration with external services when no other
-     * key is configured or provided. This serves as a placeholder or fallback value.
-     */
-    String DEFAULT_API_KEY = "default-api-key";
-
+public interface DoclingDevServicesConfig {
     /**
      * If DevServices has been explicitly enabled or disabled. DevServices are generally enabled
      * by default, unless there is an existing configuration present.
@@ -29,8 +24,7 @@ public interface DoclingDevServicesConfig extends DoclingServeContainerConfig {
     /**
      * The container image name to use.
      */
-    @WithDefault(DOCLING_IMAGE)
-    @Override
+    @WithDefault(DoclingServeContainerConfig.DOCLING_IMAGE)
     String image();
 
     /**
@@ -40,13 +34,11 @@ public interface DoclingDevServicesConfig extends DoclingServeContainerConfig {
      * </p>
      */
     @WithDefault("true")
-    @Override
     boolean enableUi();
 
     /**
      * Environment variables that are passed to the container
      */
-    @Override
     Map<String, String> containerEnv();
 
     /**
@@ -55,7 +47,6 @@ public interface DoclingDevServicesConfig extends DoclingServeContainerConfig {
      * defined timeframe.
      * Default Value: {@code quarkus.devservices.timeout}
      */
-    @Override
     @WithDefault("${quarkus.devservices.timeout:PT1M}")
     Duration startupTimeout();
 
@@ -64,12 +55,65 @@ public interface DoclingDevServicesConfig extends DoclingServeContainerConfig {
      *
      * @return the API key as a {@link String}, or {@code null} if no API key is configured.
      */
-    @Override
-    @WithDefault(DEFAULT_API_KEY)
-    String apiKey();
+    Optional<String> apiKey();
 
-    @Override
-    default Builder toBuilder() {
-        throw new UnsupportedOperationException("This operation is not supported by the DoclingDevServicesConfig");
+    /**
+     * Indicates if the Docling server managed by Quarkus Dev Services is shared.
+     * When shared, Quarkus looks for running containers using label-based service discovery.
+     * If a matching container is found, it is used, and so a second one is not started.
+     * Otherwise, Dev Services for Docling starts a new container.
+     * <p>
+     * The discovery uses the {@code quarkus-dev-service-docling} label.
+     * The value is configured using the {@code service-name} property.
+     * <p>
+     * Container sharing is only used in dev mode.
+     */
+    @WithDefault("true")
+    boolean shared();
+
+    /**
+     * The value of the {@code quarkus-dev-service-docling} label attached to the started container.
+     * This property is used when {@code shared} is set to {@code true}.
+     * In this case, before starting a container, Dev Services for Docling looks for a container with the
+     * {@code quarkus-dev-service-docling} label
+     * set to the configured value. If found, it will use this container instead of starting a new one. Otherwise, it
+     * starts a new container with the {@code quarkus-dev-service-docling} label set to the specified value.
+     * <p>
+     * This property is used when you need multiple shared Docling servers.
+     */
+    @WithDefault("docling")
+    String serviceName();
+
+    /**
+     * Converts the current configuration of the {@code DoclingDevServicesConfig} into
+     * a {@link DoclingServeContainerConfig} object.
+     *
+     * The resulting {@link DoclingServeContainerConfig} represents the finalized configuration
+     * for the Docling server, including container image, environment variables, UI enablement,
+     * startup timeout, and the API key if provided.
+     *
+     * @return a new instance of {@link DoclingServeContainerConfig} built from the current configuration.
+     */
+    default DoclingServeContainerConfig toDoclingServeContainerConfig() {
+        return DoclingServeContainerConfig.builder()
+                .image(image())
+                .enableUi(enableUi())
+                .containerEnv(containerEnv())
+                .startupTimeout(startupTimeout())
+                .apiKey(apiKey().orElse(null))
+                .build();
+    }
+
+    default String asString() {
+        return "DoclingDevServicesConfig{" +
+                "enabled=" + enabled() +
+                ", image='" + image() + '\'' +
+                ", enableUi=" + enableUi() +
+                ", containerEnv=" + containerEnv() +
+                ", startupTimeout=" + startupTimeout() +
+                ", apiKey=" + apiKey().orElse(null) +
+                ", shared=" + shared() +
+                ", serviceName='" + serviceName() + '\'' +
+                '}';
     }
 }

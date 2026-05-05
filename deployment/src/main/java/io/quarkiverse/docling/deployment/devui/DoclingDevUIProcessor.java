@@ -1,42 +1,52 @@
 package io.quarkiverse.docling.deployment.devui;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.Map;
+
+import org.jboss.logging.Logger;
 
 import io.quarkiverse.docling.deployment.devservices.DoclingContainer;
-import io.quarkiverse.docling.deployment.devservices.DoclingDevServicesConfigBuildItem;
-import io.quarkus.deployment.IsDevelopment;
+import io.quarkiverse.docling.deployment.devservices.DoclingDevServicesProcessor;
+import io.quarkus.deployment.IsLocalDevelopment;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.devui.spi.page.CardPageBuildItem;
 import io.quarkus.devui.spi.page.Page;
 
 class DoclingDevUIProcessor {
-    @BuildStep(onlyIf = IsDevelopment.class)
-    CardPageBuildItem devuiCard(List<DoclingDevServicesConfigBuildItem> doclingDevServicesConfigs) {
+    private static final Logger LOG = Logger.getLogger(DoclingDevUIProcessor.class);
+
+    @BuildStep(onlyIf = IsLocalDevelopment.class)
+    CardPageBuildItem devuiCard() {
+        LOG.debug("Inside DoclingDevUIProcessor.devuiCard");
         var card = new CardPageBuildItem();
-        var config = ((doclingDevServicesConfigs != null) && (doclingDevServicesConfigs.size() == 1))
-                ? doclingDevServicesConfigs.get(0).getConfig()
-                : null;
+        card.addLibraryVersion("ai.docling", "docling-serve-api", "Docling Java",
+                "https://docling-project.github.io/docling-java");
 
-        if (config != null) {
-            Optional.ofNullable(config.get(DoclingContainer.CONFIG_DOCLING_API_DOC))
-                    .ifPresent(apiDocUrl -> card.addPage(
-                            Page.externalPageBuilder("Swagger UI")
-                                    .url(apiDocUrl)
-                                    .isHtmlContent()));
+        card.addPage(
+                Page.externalPageBuilder("Swagger UI")
+                        .dynamicUrlJsonRPCMethodName(
+                                "devui-dev-services:devServicesConfig",
+                                Map.of(
+                                        "name", DoclingDevServicesProcessor.FEATURE,
+                                        "configKey", DoclingContainer.CONFIG_DOCLING_API_DOC))
+                        .isHtmlContent());
 
-            Optional.ofNullable(config.get(DoclingContainer.CONFIG_DOCLING_UI))
-                    .ifPresent(uiUrl -> card.addPage(
-                            Page.externalPageBuilder("Docling UI")
-                                    .url(uiUrl)
-                                    .isHtmlContent()));
+        card.addPage(
+                Page.externalPageBuilder("Docling UI")
+                        .dynamicUrlJsonRPCMethodName(
+                                "devui-dev-services:devServicesConfig",
+                                Map.of(
+                                        "name", DoclingDevServicesProcessor.FEATURE,
+                                        "configKey", DoclingContainer.CONFIG_DOCLING_UI))
+                        .isHtmlContent());
 
-            Optional.ofNullable(config.get(DoclingContainer.CONFIG_DOCLING_API_SCALAR_DOC))
-                    .ifPresent(scalarUrl -> card.addPage(
-                            Page.externalPageBuilder("Scalar UI")
-                                    .url(scalarUrl)
-                                    .isHtmlContent()));
-        }
+        card.addPage(
+                Page.externalPageBuilder("Scalar UI")
+                        .dynamicUrlJsonRPCMethodName(
+                                "devui-dev-services:devServicesConfig",
+                                Map.of(
+                                        "name", DoclingDevServicesProcessor.FEATURE,
+                                        "configKey", DoclingContainer.CONFIG_DOCLING_API_SCALAR_DOC))
+                        .isHtmlContent());
 
         return card;
     }
