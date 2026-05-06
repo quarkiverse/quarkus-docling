@@ -46,7 +46,7 @@ jobs:
         shell: bash
         run: scripts/ci-reclaim-disk-space.sh
 
-      - uses: graalvm/setup-graalvm@v1
+      - uses: graalvm/setup-graalvm@v1.5.2
         with:
           java-version: ${{ matrix.java }}
           distribution: mandrel # See 'Supported distributions' for available options
