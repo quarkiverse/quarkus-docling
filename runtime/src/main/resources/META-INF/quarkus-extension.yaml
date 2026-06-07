@@ -3,6 +3,11 @@ artifact: ${project.groupId}:${project.artifactId}:${project.version}
 description: Runs Docling as an API service. Docling converts messy documents into structured data and simplifies downstream document and AI processing by detecting tables, formulas, reading order, OCR, and much more.
 guide: "https://docs.quarkiverse.io/quarkus-docling/dev/index.html"
 metadata:
+  capabilities:
+    provides:
+      - "io.quarkiverse.docling"
+  config:
+    - "quarkus.docling."
   keywords:
     - ai
     - docling
