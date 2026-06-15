@@ -49,7 +49,6 @@
 		<dependency>
 			<groupId>ai.docling</groupId>
 			<artifactId>docling-testcontainers</artifactId>
-			<version>${docling-java.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
