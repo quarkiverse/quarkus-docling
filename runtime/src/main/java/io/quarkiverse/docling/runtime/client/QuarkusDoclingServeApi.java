@@ -17,7 +17,9 @@ import ai.docling.serve.api.chunk.response.ChunkDocumentResponse;
 import ai.docling.serve.api.clear.request.ClearConvertersRequest;
 import ai.docling.serve.api.clear.request.ClearResultsRequest;
 import ai.docling.serve.api.clear.response.ClearResponse;
+import ai.docling.serve.api.convert.request.BatchConvertDocumentRequest;
 import ai.docling.serve.api.convert.request.ConvertDocumentRequest;
+import ai.docling.serve.api.convert.request.target.PresignedUrlTarget;
 import ai.docling.serve.api.convert.request.target.PutTarget;
 import ai.docling.serve.api.convert.request.target.S3Target;
 import ai.docling.serve.api.convert.request.target.ZipTarget;
@@ -104,7 +106,8 @@ public class QuarkusDoclingServeApi implements DoclingServeApi {
     @Override
     public ConvertDocumentResponse convertSource(ConvertDocumentRequest request) {
         var hasMultipleSources = !Utils.isNullOrEmpty(request.getSources()) ? request.getSources().size() > 1 : Boolean.FALSE;
-        var isRemoteTarget = (request.getTarget() instanceof S3Target) || (request.getTarget() instanceof PutTarget);
+        var isRemoteTarget = (request.getTarget() instanceof S3Target) || (request.getTarget() instanceof PutTarget)
+                || (request.getTarget() instanceof PresignedUrlTarget);
         var isZipTarget = request.getTarget() instanceof ZipTarget;
 
         var response = this.client.convertSource(request, this.apiMetadata);
@@ -117,6 +120,17 @@ public class QuarkusDoclingServeApi implements DoclingServeApi {
     @Override
     public CompletionStage<ConvertDocumentResponse> convertSourceAsync(ConvertDocumentRequest request) {
         return executeAsync(() -> this.client.submitConvertSourceAsync(request, this.apiMetadata), TaskResultType.CONVERT);
+    }
+
+    @Override
+    public TaskStatusPollResponse convertSourceBatch(BatchConvertDocumentRequest request) {
+        return this.client.convertSourceBatch(request, this.apiMetadata);
+    }
+
+    @Override
+    public CompletionStage<ConvertDocumentResponse> convertSourceBatchAsync(BatchConvertDocumentRequest request) {
+        return executeAsync(() -> this.client.submitConvertSourceBatchAsync(request, this.apiMetadata),
+                TaskResultType.CONVERT);
     }
 
     @Override

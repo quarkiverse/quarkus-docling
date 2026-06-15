@@ -24,7 +24,6 @@
 		<dependency>
 			<groupId>ai.docling</groupId>
 			<artifactId>docling-serve-api</artifactId>
-			<version>${docling-java.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>

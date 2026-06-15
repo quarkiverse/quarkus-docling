@@ -8,6 +8,7 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import ai.docling.serve.api.convert.request.BatchConvertDocumentRequest;
 import ai.docling.serve.api.convert.request.ConvertDocumentRequest;
 import ai.docling.serve.api.task.response.TaskStatusPollResponse;
 import io.smallrye.mutiny.Uni;
@@ -24,4 +25,17 @@ public interface QuarkusDoclingServeConvertApi {
     @Consumes(MediaType.APPLICATION_JSON)
     @POST
     Uni<TaskStatusPollResponse> submitConvertSourceAsync(ConvertDocumentRequest request, @BeanParam ApiMetadata metadata);
+
+    @Path("/v1/convert/source/batch")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @POST
+    TaskStatusPollResponse convertSourceBatch(BatchConvertDocumentRequest request, @BeanParam ApiMetadata metadata);
+
+    @Path("/v1/convert/source/batch")
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    @POST
+    Uni<TaskStatusPollResponse> submitConvertSourceBatchAsync(BatchConvertDocumentRequest request,
+            @BeanParam ApiMetadata metadata);
 }
