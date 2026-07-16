@@ -9,6 +9,9 @@
 	</parent>
 	<artifactId>quarkus-docling-deployment</artifactId>
 	<name>Quarkus Docling - Deployment</name>
+	<properties>
+		<quarkus-rag.guide>docs/modules/ROOT/pages/index.adoc</quarkus-rag.guide>
+	</properties>
 
 	<dependencies>
 		<dependency>
