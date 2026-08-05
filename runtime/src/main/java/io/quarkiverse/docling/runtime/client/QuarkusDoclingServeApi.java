@@ -167,7 +167,7 @@ public class QuarkusDoclingServeApi implements DoclingServeApi {
                 .runSubscriptionOn(Infrastructure.getDefaultWorkerPool())
                 .emitOn(Infrastructure.getDefaultWorkerPool())
                 .<O> flatMap(taskResponse -> {
-                    LOG.infof("Started async conversion with task ID: %s", taskResponse.getTaskId());
+                    LOG.debugf("Started async conversion with task ID: %s", taskResponse.getTaskId());
 
                     var startTime = System.currentTimeMillis();
                     return pollTaskUntilComplete(taskResponse, startTime, taskResultType);
@@ -201,7 +201,7 @@ public class QuarkusDoclingServeApi implements DoclingServeApi {
 
         return switch (status) {
             case SUCCESS -> {
-                LOG.infof("Task %s completed successfully", taskId);
+                LOG.debugf("Task %s completed successfully", taskId);
 
                 yield ((Uni<O>) switch (taskResultType) {
                     case CONVERT -> Uni.createFrom().item(() -> convertTaskResult(statusResponse.getTaskId()));
