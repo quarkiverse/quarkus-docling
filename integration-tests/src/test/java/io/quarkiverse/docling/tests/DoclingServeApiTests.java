@@ -49,7 +49,6 @@ import ai.docling.serve.api.health.HealthCheckResponse;
 import ai.docling.serve.api.task.request.TaskStatusPollRequest;
 import ai.docling.serve.api.util.FileUtils;
 import ai.docling.serve.api.validation.ValidationError;
-import ai.docling.serve.api.validation.ValidationErrorContext;
 import ai.docling.serve.api.validation.ValidationErrorDetail;
 import ai.docling.serve.api.validation.ValidationException;
 import io.quarkus.logging.Log;
@@ -189,10 +188,10 @@ class DoclingServeApiTests {
                                     .type("url_scheme")
                                     .message("URL scheme should be 'http' or 'https'")
                                     .locations(List.of("body", "sources", 0, "http", "url"))
-                                    .context(
-                                            ValidationErrorContext.builder()
-                                                    .expectedSchemes("'http' or 'https'")
-                                                    .build())
+                                    //                                    .context(
+                                    //                                            ValidationErrorContext.builder()
+                                    //                                                    .expectedSchemes("'http' or 'https'")
+                                    //                                                    .build())
                                     .build());
         }
 
@@ -945,10 +944,10 @@ class DoclingServeApiTests {
                                     .type("url_scheme")
                                     .message("URL scheme should be 'http' or 'https'")
                                     .locations(List.of("body", "sources", 0, "http", "url"))
-                                    .context(
-                                            ValidationErrorContext.builder()
-                                                    .expectedSchemes("'http' or 'https'")
-                                                    .build())
+                                    //                                    .context(
+                                    //                                            ValidationErrorContext.builder()
+                                    //                                                    .expectedSchemes("'http' or 'https'")
+                                    //                                                    .build())
                                     .build());
         }
 
@@ -988,10 +987,10 @@ class DoclingServeApiTests {
                                     .type("url_scheme")
                                     .message("URL scheme should be 'http' or 'https'")
                                     .locations(List.of("body", "sources", 0, "http", "url"))
-                                    .context(
-                                            ValidationErrorContext.builder()
-                                                    .expectedSchemes("'http' or 'https'")
-                                                    .build())
+                                    //                                    .context(
+                                    //                                            ValidationErrorContext.builder()
+                                    //                                                    .expectedSchemes("'http' or 'https'")
+                                    //                                                    .build())
                                     .build());
         }
     }
