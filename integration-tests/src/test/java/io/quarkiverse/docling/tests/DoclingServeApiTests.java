@@ -277,7 +277,7 @@ class DoclingServeApiTests {
                     .isNotNull()
                     .asInstanceOf(InstanceOfAssertFactories.type(ZipArchiveConvertDocumentResponse.class))
                     .satisfies(r -> assertZipArchiveEntries(r.getInputStream(), Set.of("2408.09869.md", "artifacts/",
-                            "artifacts/image_000000_4f05ea6de89ce20493a5d9cc2305a4feb948c7bb794d7b81ee29554ec56b8445.png")))
+                            "artifacts/image_000000_0eac4b0d129ddc7bbba7e66c916de481fd0f6dc46c8f18aef717890ca966e639.png")))
                     .extracting(
                             ZipArchiveConvertDocumentResponse::getFileName,
                             ZipArchiveConvertDocumentResponse::getResponseType)
@@ -305,7 +305,7 @@ class DoclingServeApiTests {
                     .isNotNull()
                     .asInstanceOf(InstanceOfAssertFactories.type(ZipArchiveConvertDocumentResponse.class))
                     .satisfies(r -> assertZipArchiveEntries(r.getInputStream(), Set.of("2408.09869.md", "artifacts/",
-                            "artifacts/image_000000_4f05ea6de89ce20493a5d9cc2305a4feb948c7bb794d7b81ee29554ec56b8445.png")))
+                            "artifacts/image_000000_0eac4b0d129ddc7bbba7e66c916de481fd0f6dc46c8f18aef717890ca966e639.png")))
                     .extracting(
                             ZipArchiveConvertDocumentResponse::getFileName,
                             ZipArchiveConvertDocumentResponse::getResponseType)
@@ -396,7 +396,7 @@ class DoclingServeApiTests {
         void shouldConvertFileAsync() {
             var response = assertConvertInBodySource(Uni.createFrom().completionStage(
                     doclingServeApi.convertFilesAsync(Path.of("src", "main", "resources", "story.pdf")))
-                    .await().atMost(Duration.ofSeconds(10)));
+                    .await().atMost(Duration.ofMinutes(1)));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();

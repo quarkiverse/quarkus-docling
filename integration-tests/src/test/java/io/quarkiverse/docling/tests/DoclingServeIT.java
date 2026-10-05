@@ -10,8 +10,8 @@ import io.quarkus.test.junit.QuarkusIntegrationTest;
 @QuarkusIntegrationTest
 class DoclingServeIT {
     @ParameterizedTest
-    @ValueSource(strings = { "health", "convertBytes", "convertFile", "convertFromUri", "convertFromBase64", "convertNullFile",
-            "convertNonExistingFile", "convertNonFile" })
+    @ValueSource(strings = { "health", "providerBuilder", "convertBytes", "convertFile", "convertFromUri",
+            "convertFromBase64", "convertNullFile", "convertNonExistingFile", "convertNonFile" })
     void tests(String path) {
         get("/docling/%s".formatted(path)).then()
                 .statusCode(204);

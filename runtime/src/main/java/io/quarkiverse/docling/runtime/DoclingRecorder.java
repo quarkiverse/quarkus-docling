@@ -7,8 +7,8 @@ import ai.docling.serve.api.DoclingServeApi;
 import io.quarkiverse.docling.runtime.client.DoclingClientBuilder;
 import io.quarkiverse.docling.runtime.client.DoclingService;
 import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeApi;
-import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeApi.QuarkusDoclingServeApiBuilder;
 import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeClient;
+import io.quarkiverse.docling.runtime.config.DoclingConfigMapper;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 import io.quarkus.arc.SyntheticCreationalContext;
 import io.quarkus.runtime.RuntimeValue;
@@ -26,7 +26,7 @@ public class DoclingRecorder {
         return new Supplier<QuarkusDoclingServeClient>() {
             @Override
             public QuarkusDoclingServeClient get() {
-                return new DoclingClientBuilder(config.getValue()).build();
+                return new DoclingClientBuilder(DoclingConfigMapper.toApiConfig(config.getValue())).build();
             }
         };
     }
@@ -35,9 +35,11 @@ public class DoclingRecorder {
         return new Function<SyntheticCreationalContext<DoclingServeApi>, DoclingServeApi>() {
             @Override
             public DoclingServeApi apply(SyntheticCreationalContext<DoclingServeApi> context) {
-                return DoclingServeApi.<QuarkusDoclingServeApi, QuarkusDoclingServeApiBuilder> builder()
+                // Deliberately not DoclingServeApi.builder(): the CDI path reuses the injected client bean,
+                // which the DoclingServeApiProvider SPI has no hook for
+                return QuarkusDoclingServeApi.builder()
                         .client(context.getInjectedReference(QuarkusDoclingServeClient.class))
-                        .config(config.getValue())
+                        .config(DoclingConfigMapper.toApiConfig(config.getValue()))
                         .build();
             }
         };

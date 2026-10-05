@@ -8,10 +8,10 @@ import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
 
 import ai.docling.serve.api.DoclingServeApi;
-import ai.docling.serve.api.spi.DoclingServeApiBuilderFactory;
+import ai.docling.serve.api.spi.DoclingServeApiProvider;
 import io.quarkiverse.docling.runtime.DoclingRecorder;
 import io.quarkiverse.docling.runtime.client.DoclingService;
-import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeApiBuilderFactory;
+import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeApiProvider;
 import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeClient;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.deployment.annotations.BuildProducer;
@@ -35,8 +35,8 @@ class DoclingProcessor {
 
     @BuildStep
     ServiceProviderBuildItem nativeImageServiceProviderRegistration() {
-        return new ServiceProviderBuildItem(DoclingServeApiBuilderFactory.class.getName(),
-                QuarkusDoclingServeApiBuilderFactory.class.getName());
+        return new ServiceProviderBuildItem(DoclingServeApiProvider.class.getName(),
+                QuarkusDoclingServeApiProvider.class.getName());
     }
 
     @BuildStep

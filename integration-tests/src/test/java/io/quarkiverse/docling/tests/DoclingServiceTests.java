@@ -22,6 +22,11 @@ class DoclingServiceTests {
     }
 
     @Test
+    void providerBuilder() {
+        this.doclingServiceTester.providerBuilder();
+    }
+
+    @Test
     void convertBytes() throws IOException {
         this.doclingServiceTester.convertBytes();
     }
