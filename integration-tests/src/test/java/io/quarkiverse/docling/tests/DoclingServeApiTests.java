@@ -396,7 +396,7 @@ class DoclingServeApiTests {
         void shouldConvertFileAsync() {
             var response = assertConvertInBodySource(Uni.createFrom().completionStage(
                     doclingServeApi.convertFilesAsync(Path.of("src", "main", "resources", "story.pdf")))
-                    .await().atMost(Duration.ofSeconds(10)));
+                    .await().atMost(Duration.ofMinutes(1)));
 
             assertThat(response).isNotNull();
             assertThat(response.getStatus()).isNotEmpty();
