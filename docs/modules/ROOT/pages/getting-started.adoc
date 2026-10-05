@@ -50,6 +50,19 @@ Additionally, if you want Quarkus-specific features (i.e. async with `Uni`, etc)
 QuarkusDoclingServeClient quarkusDoclingServeClient;
 ----
 
+=== Building an API manually
+
+This extension registers an `ai.docling.serve.api.spi.DoclingServeApiProvider`, so `DoclingServeApi.builder()` also resolves to this extension's Quarkus REST client implementation:
+
+[source,java]
+----
+var doclingServeApi = DoclingServeApi.builder()
+        .baseUrl("http://localhost:5001")
+        .build();
+----
+
+Injection is still the recommended approach, since the injected client is managed by the container and configured from the `quarkus.docling.*` properties. Every option of `DoclingServeApiConfig` is honored except `asyncExecutor`, which is ignored with a warning because async operations always run on the Mutiny default worker pool.
+
 == Dev Services
 
 The https://quarkus.io/guides/dev-services[Docling dev service] provides a https://docling-project.github.io/docling-java/dev/testcontainers[Docling Serve Container] for you automatically during dev mode and testing. See the xref:all-config.adoc[configuration options] for available configuration properties.

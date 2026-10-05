@@ -12,21 +12,49 @@ import java.util.Base64;
 
 import jakarta.enterprise.context.ApplicationScoped;
 
+import ai.docling.serve.api.DoclingServeApi;
+import ai.docling.serve.api.DoclingServeApiConfig;
 import ai.docling.serve.api.convert.request.options.OutputFormat;
+import ai.docling.serve.api.health.HealthCheckResponse;
 import io.quarkiverse.docling.AssertionHelper;
 import io.quarkiverse.docling.runtime.client.DoclingService;
+import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeApi;
+import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
 
 @ApplicationScoped
 public class DoclingServiceTester {
     private final DoclingService doclingService;
+    private final DoclingRuntimeConfig config;
 
-    public DoclingServiceTester(DoclingService doclingService) {
+    public DoclingServiceTester(DoclingService doclingService, DoclingRuntimeConfig config) {
         this.doclingService = doclingService;
+        this.config = config;
     }
 
     public void health() {
         assertThat(this.doclingService.isHealthy())
                 .isTrue();
+    }
+
+    /**
+     * Verifies that the {@code DoclingServeApiProvider} SPI is discoverable, which in native mode
+     * depends on the {@code ServiceProviderBuildItem} registration.
+     */
+    public void providerBuilder() {
+        var api = DoclingServeApi.builder()
+                .baseUrl(this.config.baseUrl())
+                .build();
+
+        assertThat(api)
+                .isInstanceOf(QuarkusDoclingServeApi.class)
+                .extracting(DoclingServeApi::config)
+                .extracting(DoclingServeApiConfig::baseUrl)
+                .isEqualTo(URI.create(this.config.baseUrl()));
+
+        assertThat(api.health())
+                .isNotNull()
+                .extracting(HealthCheckResponse::getStatus)
+                .isEqualTo("ok");
     }
 
     public void convertBytes() throws IOException {

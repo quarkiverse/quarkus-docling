@@ -22,6 +22,11 @@ public class DoclingResource {
         this.doclingServiceTester.health();
     }
 
+    @Path("/providerBuilder")
+    public void providerBuilder() {
+        this.doclingServiceTester.providerBuilder();
+    }
+
     @Path("/convertBytes")
     public void convertBytes() throws IOException {
         this.doclingServiceTester.convertBytes();
