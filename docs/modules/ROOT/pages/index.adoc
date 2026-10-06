@@ -11,6 +11,43 @@ Currently, this extension is an implementation of the https://docling-project.gi
 
 The eventual goal is to unify the https://docling-project.github.io/docling/concepts/docling_document[DoclingDocument] format with https://docs.langchain4j.dev/tutorials/rag#document[LangChain4j's `Document` abstraction] so that Docling can be used in a LangChain4j RAG pipeline for ingesting data.
 
+== Compatibility
+
+Each release of this extension targets a single Quarkus https://quarkus.io/blog/tag/lts/[LTS] stream.
+New features are developed against the current baseline only and are not backported to earlier streams.
+
+The table below also records which https://github.com/docling-project/docling-java[Docling Java] version each release was built against, so you can find the matching https://docling-project.github.io/docling-java[upstream documentation] for the API you are coding against.
+
+[cols="1,1,1", options="header"]
+|===
+|Quarkus Docling |Docling Java |Quarkus
+
+|1.5.0 |https://docling-project.github.io/docling-java/0.7.0[0.7.0] |3.40 LTS
+|1.4.4 |https://docling-project.github.io/docling-java/0.7.0[0.7.0] |3.33 LTS
+|1.4.3 |https://docling-project.github.io/docling-java/0.6.5[0.6.5] |3.33 LTS
+|1.4.2 |https://docling-project.github.io/docling-java/0.6.1[0.6.1] |3.33 LTS
+|1.4.1 |https://docling-project.github.io/docling-java/0.6.1[0.6.1] |3.33 LTS
+|1.4.0 |https://docling-project.github.io/docling-java/0.6.0[0.6.0] |3.33 LTS
+|1.3.2 |https://docling-project.github.io/docling-java/0.5.3[0.5.3] |3.33 LTS
+|1.3.1 |https://docling-project.github.io/docling-java/0.5.2[0.5.2] |3.33 LTS
+|1.3.0 |https://docling-project.github.io/docling-java/0.5.0[0.5.0] |3.27 LTS
+|1.2.3 |https://docling-project.github.io/docling-java/0.4.7[0.4.7] |3.27 LTS
+|1.2.2 |https://docling-project.github.io/docling-java/0.4.3[0.4.3] |3.27 LTS
+|1.2.1 |https://docling-project.github.io/docling-java/0.4.2[0.4.2] |3.27 LTS
+|1.2.0 |https://docling-project.github.io/docling-java/0.4.1[0.4.1] |3.27 LTS
+|1.1.0 |https://docling-project.github.io/docling-java/0.3.0[0.3.0] |3.27 LTS
+|1.0.1 |0.1.3 |3.27 LTS
+|0.0.1 to 0.0.4 |n/a |3.20 LTS
+|===
+
+The `0.0.x` releases predate Docling Java; they used a client generated from the Docling Serve OpenAPI specification.
+Docling Java `0.1.3` is not linked because the upstream documentation only goes back to `0.1.5`.
+
+If you are still on Quarkus 3.33 LTS, stay on `1.4.4`.
+The extension metadata declares `requires-quarkus-core: "[3.40,)"`, so Quarkus tooling will reject an incompatible combination rather than failing at runtime.
+
+The definitive Docling Java version for any release is the `docling-java.version` property in that release's `pom.xml` on Maven Central.
+
 == Docling Features
 
 * 🗂️ Parsing of https://docling-project.github.io/docling/usage/supported_formats/[multiple document formats] incl. PDF, DOCX, XLSX, HTML, images, and more
