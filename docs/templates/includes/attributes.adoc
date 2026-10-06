@@ -1,3 +1,4 @@
 :project-version: ${release.current-version}
+:docling-java-version: ${docling-java.version}
 
 :examples-dir: ./../examples/
