@@ -7,7 +7,7 @@ This is a Quarkus extension for the https://github.com/docling-project[Docling p
 [link=https://github.com/docling-project/docling-java]
 image::docling-java.png[Docling Java,width=300]
 
-Currently, this extension is an implementation of the https://docling-project.github.io/docling-java/current/docling-serve/serve-api[Docling Serve API] provided by https://docling-project.github.io/docling-java[Docling Java] using a https://quarkus.io/guides/rest-client[Quarkus REST client].
+Currently, this extension is an implementation of the https://docling-project.github.io/docling-java/{docling-java-version}/docling-serve/serve-api[Docling Serve API] provided by https://docling-project.github.io/docling-java[Docling Java] using a https://quarkus.io/guides/rest-client[Quarkus REST client].
 
 The eventual goal is to unify the https://docling-project.github.io/docling/concepts/docling_document[DoclingDocument] format with https://docs.langchain4j.dev/tutorials/rag#document[LangChain4j's `Document` abstraction] so that Docling can be used in a LangChain4j RAG pipeline for ingesting data.
 
@@ -62,4 +62,4 @@ The definitive Docling Java version for any release is the `docling-java.version
 
 == What's new
 
-* See https://docling-project.github.io/docling-java/current/whats-new[what's new in Docling Java] to see what's new in the https://github.com/docling-project/docling-java[upstream Docling Java project].
+* See https://docling-project.github.io/docling-java/{docling-java-version}/whats-new[what's new in Docling Java] to see what's new in the https://github.com/docling-project/docling-java[upstream Docling Java project].

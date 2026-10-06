@@ -1,3 +1,4 @@
 :project-version: 1.4.4
+:docling-java-version: 0.7.0
 
 :examples-dir: ./../examples/
