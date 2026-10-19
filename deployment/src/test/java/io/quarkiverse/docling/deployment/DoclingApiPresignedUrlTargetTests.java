@@ -26,11 +26,11 @@ import ai.docling.serve.api.convert.response.ConversionStatus;
 import ai.docling.serve.api.convert.response.PreSignedUrlConvertResponse;
 import ai.docling.serve.api.convert.response.ResponseType;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 class DoclingApiPresignedUrlTargetTests extends RequestResponseLoggingTests {
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.docling.devservices.enabled", "false")
             .overrideRuntimeConfigKey(DoclingRuntimeConfig.BASE_URL_KEY, wiremockUrlForConfig());

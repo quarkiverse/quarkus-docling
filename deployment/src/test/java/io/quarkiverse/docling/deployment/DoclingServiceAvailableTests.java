@@ -17,11 +17,11 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.quarkiverse.docling.runtime.client.DoclingService;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 class DoclingServiceAvailableTests extends RequestResponseLoggingTests {
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.docling.devservices.enabled", "false")
             .overrideRuntimeConfigKey(DoclingRuntimeConfig.BASE_URL_KEY, wiremockUrlForConfig());

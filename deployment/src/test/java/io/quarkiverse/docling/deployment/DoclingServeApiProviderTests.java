@@ -17,11 +17,11 @@ import ai.docling.serve.api.DoclingServeApiConfig;
 import ai.docling.serve.api.health.HealthCheckResponse;
 import io.quarkiverse.docling.runtime.client.QuarkusDoclingServeApi;
 import io.quarkiverse.docling.runtime.config.DoclingRuntimeConfig;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 class DoclingServeApiProviderTests extends RequestResponseLoggingTests {
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.docling.devservices.enabled", "false")
             .overrideRuntimeConfigKey(DoclingRuntimeConfig.BASE_URL_KEY, wiremockUrlForConfig())
