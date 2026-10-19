@@ -11,11 +11,11 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import ai.docling.serve.api.DoclingServeApi;
 import ai.docling.serve.api.health.HealthCheckResponse;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 class DoclingDevServiceWorksTests {
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest unitTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideRuntimeConfigKey("quarkus.docling.log-requests", "true")
             .overrideRuntimeConfigKey("quarkus.docling.log-responses", "true");
