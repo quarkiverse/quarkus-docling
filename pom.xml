@@ -39,7 +39,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <quarkus.version>3.40.1.2</quarkus.version>
-    <quarkus-antora.version>3.40.0</quarkus-antora.version>
+    <quarkus-antora.version>4.0.0</quarkus-antora.version>
     <quarkus-wiremock.version>1.8.1</quarkus-wiremock.version>
   </properties>
 
